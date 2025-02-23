@@ -1,2 +1,3 @@
-# Example
-An example greeter plugin
+# Unmuted Level Jingles
+
+Plays level jingles when music is muted
