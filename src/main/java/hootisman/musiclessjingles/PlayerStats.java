@@ -1,4 +1,4 @@
-package com.example;
+package hootisman.musiclessjingles;
 
 import net.runelite.api.Skill;
 

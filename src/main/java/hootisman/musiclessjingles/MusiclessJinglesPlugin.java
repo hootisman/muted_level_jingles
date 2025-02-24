@@ -1,33 +1,24 @@
-package com.example;
+package hootisman.musiclessjingles;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import javax.sound.midi.*;
-
 
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Unmute Level Jingles"
+	name = "Musicless Jingles"
 )
-public class ExamplePlugin extends Plugin
+public class MusiclessJinglesPlugin extends Plugin
 {
 	@Inject
 	private Client client;
@@ -36,7 +27,7 @@ public class ExamplePlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Inject
-	private ExampleConfig config;
+	private MusiclessJinglesConfig config;
 
 	private int jingleTick;
 
@@ -45,21 +36,8 @@ public class ExamplePlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		byte[] data = 	client.getIndex(11).loadData(28, 0);
 		jingleTick = 0;
 		isJingleQueued = false;
-
-
-		log.info("***Start");
-		log.info(Arrays.toString(data));
-		log.info("***End");
-	}
-
-	@Override
-	protected void shutDown() throws Exception
-	{
-		log.info("Is music muted? " + client.getMusicVolume());
-		log.info("Example stopped!");
 	}
 
 	@Subscribe
@@ -95,7 +73,7 @@ public class ExamplePlugin extends Plugin
 		if (client.getMusicVolume() == 0){
 			log.info("*j* unmuting for jingle...");
 			clientThread.invoke(() -> {
-				client.setMusicVolume(50);
+				client.setMusicVolume(config.jingleVolume());
 				jingleTick = 1;
 				isJingleQueued = false;
 			});
@@ -147,8 +125,8 @@ public class ExamplePlugin extends Plugin
 
 
 	@Provides
-	ExampleConfig provideConfig(ConfigManager configManager)
+	MusiclessJinglesConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(ExampleConfig.class);
+		return configManager.getConfig(MusiclessJinglesConfig.class);
 	}
 }
