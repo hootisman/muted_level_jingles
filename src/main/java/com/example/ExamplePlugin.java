@@ -40,23 +40,15 @@ public class ExamplePlugin extends Plugin
 
 	private int jingleTick;
 
+	private boolean isJingleQueued;
+
 	@Override
 	protected void startUp() throws Exception
 	{
 		byte[] data = 	client.getIndex(11).loadData(28, 0);
 		jingleTick = 0;
+		isJingleQueued = false;
 
-		/*
-		File output = new File("./myfilewooo");
-
-		try ( FileOutputStream outputStream = new FileOutputStream(output); ) {
-
-			outputStream.write(data);  // Write the bytes and you're done.
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
 
 		log.info("***Start");
 		log.info(Arrays.toString(data));
@@ -81,30 +73,31 @@ public class ExamplePlugin extends Plugin
 		//level never changed
 		if (listedLevel == level) return;
 
-		//if not during init phase & music is muted ...
-		if (listedLevel != -1 && client.getMusicVolume() == 0){
-			log.info("*s* leveled up while muted! ");
-			startJingle();
-		}
+		/*if ...
+			- not during init phase
+			- music is muted
+			- widget 161.16 has no open window (bank window, trading window, etc.)
+		 */
+		if (listedLevel != -1 && client.getMusicVolume() == 0 ){
+			log.info("*s* leveled up while muted!");
+            if (client.getWidget(161, 16).getNestedChildren().length == 0){
+				startJingle();
+			} else {
+				log.info("*s* a window is open, jingle delayed");
+				isJingleQueued = true;
+			}
+        }
 
-		log.info("*s* old: " + listedLevel);
 		PlayerStats.SKILL_LEVELS.put(skill, level);
-		log.info("*s* new: " + PlayerStats.SKILL_LEVELS.get(skill));
 	}
 
-
-	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
-	{
-		log.info("*GS* " + gameStateChanged.toString());
-	}
 	private void startJingle(){
 		if (client.getMusicVolume() == 0){
 			log.info("*j* unmuting for jingle...");
 			clientThread.invoke(() -> {
 				client.setMusicVolume(50);
 				jingleTick = 1;
-
+				isJingleQueued = false;
 			});
 		}
 	}
@@ -117,6 +110,10 @@ public class ExamplePlugin extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick e){
+		if(isJingleQueued && client.getWidget(161,16).getNestedChildren().length == 0){
+			startJingle();
+		}
+
 		if(jingleTick > 10){
 			endJingle();
 		}else if (jingleTick != 0){
@@ -127,14 +124,21 @@ public class ExamplePlugin extends Plugin
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded e){
+		//todo: get other jingles to work
+		/*
 		log.info("*W* " + e.toString());
+
 		if(e.getGroupId() == 193){
 			Widget icon  = client.getWidget(ComponentID.DIALOG_SPRITE_SPRITE);
+
 			if (icon != null && icon.getItemId() == 2996){
 				log.info("*W* This is a brimhaven ticket!");
 				startJingle();
 			}
 		}
+		*/
+
+		//level up window id
 		//else if(e.getGroupId() == 233){
 		//	startJingle();
 		//}
