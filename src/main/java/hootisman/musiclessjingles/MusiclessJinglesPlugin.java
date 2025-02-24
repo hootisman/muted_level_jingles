@@ -2,6 +2,8 @@ package hootisman.musiclessjingles;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
+
+import hootisman.musiclessjingles.jingles.JingleData;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -10,9 +12,6 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-
-
-import java.util.Arrays;
 
 @Slf4j
 @PluginDescriptor(
@@ -46,7 +45,7 @@ public class MusiclessJinglesPlugin extends Plugin
 
 		Skill skill = e.getSkill();
 		int level = e.getLevel();
-		int listedLevel = PlayerStats.SKILL_LEVELS.get(skill);
+		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
 
 		//level never changed
 		if (listedLevel == level) return;
@@ -66,7 +65,7 @@ public class MusiclessJinglesPlugin extends Plugin
 			}
         }
 
-		PlayerStats.SKILL_LEVELS.put(skill, level);
+		JingleData.SKILL_LEVELS.put(skill, level);
 	}
 
 	private void startJingle(){
