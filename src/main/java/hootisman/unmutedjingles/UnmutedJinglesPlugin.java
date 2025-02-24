@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 
 import hootisman.unmutedjingles.jingles.JingleData;
+import hootisman.unmutedjingles.jingles.JingleManager;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -12,9 +13,6 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 @Slf4j
 @PluginDescriptor(
@@ -31,15 +29,12 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Inject
 	private UnmutedJinglesConfig config;
 
-	private int jingleTick;
-
-	private boolean isJingleQueued;
+	private JingleManager jingle;
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		jingleTick = 0;
-		isJingleQueued = false;
+		jingle = new JingleManager(client, clientThread, config);
 	}
 
 	@Subscribe
@@ -55,55 +50,32 @@ public class UnmutedJinglesPlugin extends Plugin
 		if (listedLevel == level) return;
 
 		/*if ...
-			- not during init phase
+			- skill level set at game start
 			- music is muted
 			- widget S161.16 has no open window (bank window, trading window, etc.)
 		 */
-		if (listedLevel != -1 && client.getMusicVolume() == 0 ){
-			log.info("*s* leveled up while muted!");
-            if (client.getWidget(161, 16).getNestedChildren().length == 0){
-				startJingle();
+		if (JingleData.isLevelInited(skill)){
+			jingle.startJingle();
+			/*
+            if (jingle.isWindowClosed()){
+				jingle.startJingle();
 			} else {
 				log.info("*s* a window is open, jingle delayed");
-				isJingleQueued = true;
+				jingle.setJingleQueued(true);
 			}
+
+			 */
         }
 
 		JingleData.SKILL_LEVELS.put(skill, level);
 	}
 
-	private void tickJingle(){
-		if(isJingleQueued && client.getWidget(161,16).getNestedChildren().length == 0){
-			startJingle();
-		}
-		if(jingleTick > 10){
-			endJingle();
-		}else if (jingleTick != 0){
-			jingleTick += 1;
-			log.info("*G* " + jingleTick);
-		}
-	}
 
-	private void startJingle(){
-		if (client.getMusicVolume() == 0){
-			log.info("*j* unmuting for jingle...");
-			clientThread.invoke(() -> {
-				client.setMusicVolume(config.jingleVolume());
-				jingleTick = 1;
-				isJingleQueued = false;
-			});
-		}
-	}
 
-	private void endJingle(){
-		log.info("*j* jingle ended, muting...");
-		client.setMusicVolume(0);
-		jingleTick = 0;
-	}
 
 	@Subscribe
 	public void onGameTick(GameTick e){
-		tickJingle();
+		jingle.tickJingle();
 
 		/*
 		List<MidiRequest> reqs = client.getActiveMidiRequests();

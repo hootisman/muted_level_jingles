@@ -5,9 +5,21 @@ import net.runelite.api.Skill;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JingleData {
+    // ***** Constants *****
+    static final Set<Integer> ATTACK_UNLOCKS =
+            Stream.of(5, 10, 15, 20, 30, 40, 42, 50, 55, 60, 65, 70, 75, 77, 78, 80, 82, 99).collect(Collectors.toUnmodifiableSet());
+
+    static final Set<Integer> COOKING_UNLOCKS =
+            Stream.of(5, 10, 15, 20, 30, 40, 42, 50, 55, 60, 65, 70, 75, 77, 78, 80, 82, 99).collect(Collectors.toUnmodifiableSet());
+
+
+    // ***** Mutable *****
     public static Map<Skill, Integer> SKILL_LEVELS = new HashMap<>();
     static {
         SKILL_LEVELS.put(Skill.AGILITY, -1);
@@ -66,6 +78,11 @@ public class JingleData {
 */
 
     );
+
+    //true if level was set at game start
+    public static boolean isLevelInited(Skill skill){
+        return SKILL_LEVELS.get(skill) != -1;
+    }
 
     Function<Integer, Integer> getRegularUnlocksFunction(int defaultDuration, int unlockDuration, HashSet<Integer> levelsWithUnlocks){
         return level -> levelsWithUnlocks.contains(level) ? defaultDuration : unlockDuration;
