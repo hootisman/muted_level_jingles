@@ -1,12 +1,12 @@
-package hootisman.musiclessjingles;
+package hootisman.unmutedjingles;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.Range;
 
-@ConfigGroup("musiclessjingles")
-public interface MusiclessJinglesConfig extends Config
+@ConfigGroup("unmutedjingles")
+public interface UnmutedJinglesConfig extends Config
 {
 	@Range(max=100)
 	@ConfigItem(

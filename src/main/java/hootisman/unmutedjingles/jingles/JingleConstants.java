@@ -1,4 +1,4 @@
-package hootisman.musiclessjingles.jingles;
+package hootisman.unmutedjingles.jingles;
 
 import java.util.Set;
 import java.util.stream.Collectors;

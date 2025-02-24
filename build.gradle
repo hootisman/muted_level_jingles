@@ -23,7 +23,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 }
 
-group = 'hootisman.musiclessjingles'
+group = 'hootisman.unmutedjingles'
 version = '1.0-SNAPSHOT'
 
 tasks.withType(JavaCompile) {

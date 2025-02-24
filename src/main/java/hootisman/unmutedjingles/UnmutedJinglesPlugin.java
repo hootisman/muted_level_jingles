@@ -1,9 +1,9 @@
-package hootisman.musiclessjingles;
+package hootisman.unmutedjingles;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
 
-import hootisman.musiclessjingles.jingles.JingleData;
+import hootisman.unmutedjingles.jingles.JingleData;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -12,12 +12,15 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Musicless Jingles"
+	name = "Unmuted Jingles"
 )
-public class MusiclessJinglesPlugin extends Plugin
+public class UnmutedJinglesPlugin extends Plugin
 {
 	@Inject
 	private Client client;
@@ -26,7 +29,7 @@ public class MusiclessJinglesPlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Inject
-	private MusiclessJinglesConfig config;
+	private UnmutedJinglesConfig config;
 
 	private int jingleTick;
 
@@ -47,13 +50,14 @@ public class MusiclessJinglesPlugin extends Plugin
 		int level = e.getLevel();
 		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
 
+
 		//level never changed
 		if (listedLevel == level) return;
 
 		/*if ...
 			- not during init phase
 			- music is muted
-			- widget 161.16 has no open window (bank window, trading window, etc.)
+			- widget S161.16 has no open window (bank window, trading window, etc.)
 		 */
 		if (listedLevel != -1 && client.getMusicVolume() == 0 ){
 			log.info("*s* leveled up while muted!");
@@ -66,6 +70,18 @@ public class MusiclessJinglesPlugin extends Plugin
         }
 
 		JingleData.SKILL_LEVELS.put(skill, level);
+	}
+
+	private void tickJingle(){
+		if(isJingleQueued && client.getWidget(161,16).getNestedChildren().length == 0){
+			startJingle();
+		}
+		if(jingleTick > 10){
+			endJingle();
+		}else if (jingleTick != 0){
+			jingleTick += 1;
+			log.info("*G* " + jingleTick);
+		}
 	}
 
 	private void startJingle(){
@@ -87,16 +103,22 @@ public class MusiclessJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick e){
-		if(isJingleQueued && client.getWidget(161,16).getNestedChildren().length == 0){
-			startJingle();
+		tickJingle();
+
+		/*
+		List<MidiRequest> reqs = client.getActiveMidiRequests();
+		if (!reqs.isEmpty()){
+			reqs.forEach(req -> {
+				log.info("*G* req " + req.getArchiveId() + " " + req.isJingle());
+				if (!req.isJingle()){
+					log.info("*G* req is not jingle! muting");
+					endJingle();
+				}
+			});
+
 		}
 
-		if(jingleTick > 10){
-			endJingle();
-		}else if (jingleTick != 0){
-			jingleTick += 1;
-			log.info("*G* " + jingleTick);
-		}
+		 */
 	}
 
 	@Subscribe
@@ -124,8 +146,8 @@ public class MusiclessJinglesPlugin extends Plugin
 
 
 	@Provides
-	MusiclessJinglesConfig provideConfig(ConfigManager configManager)
+	UnmutedJinglesConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(MusiclessJinglesConfig.class);
+		return configManager.getConfig(UnmutedJinglesConfig.class);
 	}
 }

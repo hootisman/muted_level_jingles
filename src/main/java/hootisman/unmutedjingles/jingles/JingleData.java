@@ -1,4 +1,4 @@
-package hootisman.musiclessjingles.jingles;
+package hootisman.unmutedjingles.jingles;
 
 import net.runelite.api.Skill;
 
