@@ -8,7 +8,7 @@ import net.runelite.client.config.Range;
 @ConfigGroup("unmutedjingles")
 public interface UnmutedJinglesConfig extends Config
 {
-	@Range(max=100)
+	@Range(max=255)
 	@ConfigItem(
 		keyName = "jingleVolume",
 		name = "Jingle Volume",

@@ -11,13 +11,19 @@ import net.runelite.api.events.*;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.PluginChanged;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.plugins.music.MusicConfig;
+import net.runelite.client.plugins.music.MusicPlugin;
 
 @Slf4j
 @PluginDescriptor(
 	name = "Unmuted Jingles"
 )
+@PluginDependency(MusicPlugin.class)
 public class UnmutedJinglesPlugin extends Plugin
 {
 	@Inject
@@ -27,14 +33,37 @@ public class UnmutedJinglesPlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Inject
+	private MusicPlugin musicPlugin;
+
+	@Inject
+	private PluginManager pluginManager;
+
+	@Inject
 	private UnmutedJinglesConfig config;
 
-	private JingleManager jingle;
+	@Inject
+	private JingleManager jingleManager;
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		jingle = new JingleManager(client, clientThread, config);
+		log.info("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
+		jingleManager.setMusicPluginConfig(pluginManager.isPluginEnabled(musicPlugin) ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
+	}
+
+	@Subscribe
+	public void onPluginChanged(PluginChanged e){
+		if (!e.getPlugin().equals(musicPlugin)) return;
+
+		log.info("*P* Setting music plugin; isLoaded" + e.isLoaded());
+		jingleManager.setMusicPluginConfig(e.isLoaded() ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
+
+	}
+
+	@Subscribe
+	public void onVolumeChanged(VolumeChanged e){
+		//log.info("*V* " + e.toString() + " " + client.getMusicVolume());
+
 	}
 
 	@Subscribe
@@ -49,22 +78,14 @@ public class UnmutedJinglesPlugin extends Plugin
 		//level never changed
 		if (listedLevel == level) return;
 
+
 		/*if ...
 			- skill level set at game start
 			- music is muted
 			- widget S161.16 has no open window (bank window, trading window, etc.)
 		 */
 		if (JingleData.isLevelInited(skill)){
-			jingle.startJingle();
-			/*
-            if (jingle.isWindowClosed()){
-				jingle.startJingle();
-			} else {
-				log.info("*s* a window is open, jingle delayed");
-				jingle.setJingleQueued(true);
-			}
-
-			 */
+			jingleManager.startJingle();
         }
 
 		JingleData.SKILL_LEVELS.put(skill, level);
@@ -75,7 +96,7 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick e){
-		jingle.tickJingle();
+		jingleManager.tickJingle();
 
 		/*
 		List<MidiRequest> reqs = client.getActiveMidiRequests();

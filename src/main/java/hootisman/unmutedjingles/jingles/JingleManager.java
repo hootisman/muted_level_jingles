@@ -1,12 +1,13 @@
 package hootisman.unmutedjingles.jingles;
 
 import hootisman.unmutedjingles.UnmutedJinglesConfig;
-import hootisman.unmutedjingles.UnmutedJinglesPlugin;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.plugins.music.MusicConfig;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -14,22 +15,27 @@ import javax.inject.Singleton;
 @Singleton
 public class JingleManager {
 
+    @Inject
     private Client client;
 
+    @Setter
+    @Nullable
+    private MusicConfig musicPluginConfig;
+
+    @Inject
     private ClientThread clientThread;
 
+    @Inject
     private UnmutedJinglesConfig config;
 
     private int jingleTick;
 
     private boolean isJingleQueued;
 
-    public JingleManager(Client cli, ClientThread clithrd, UnmutedJinglesConfig cnfg){
-        client = cli;
-        clientThread = clithrd;
-        config = cnfg;
+    public JingleManager(){
         jingleTick = 0;
         isJingleQueued = false;
+
     }
 
     public void startJingle(){
@@ -42,19 +48,18 @@ public class JingleManager {
         }
 
         log.info("*j* unmuting for jingle...");
-        //todo: 2) test invokelater (also in endjingle)
-        clientThread.invoke(() -> {
-            client.setMusicVolume(config.jingleVolume());
-            jingleTick = 1;
-            isJingleQueued = false;
-        });
+
+        toggleMusicVolume(false);
+        jingleTick = 1;
+        isJingleQueued = false;
     }
 
     public void endJingle(){
         log.info("*j* jingle ended, muting...");
-        //todo: 1) test invoke
-        client.setMusicVolume(0);
+
+        toggleMusicVolume(true);
         jingleTick = 0;
+
     }
 
     public void tickJingle(){
@@ -67,6 +72,19 @@ public class JingleManager {
             log.info("*G* " + jingleTick);
         }
     }
+
+    void toggleMusicVolume(boolean shouldMute){
+        int val;
+        if (musicPluginConfig == null || !musicPluginConfig.granularSliders()){
+            val = shouldMute ? 0 : config.jingleVolume();
+            client.setMusicVolume(val);
+        }else{
+            val = shouldMute ? -config.jingleVolume() : config.jingleVolume();
+            musicPluginConfig.setMusicVolume(val);
+        }
+
+    }
+
     //if widget S161.16 has 1 or more children, then return true
     public boolean isWindowClosed() {
         return client.getWidget(161, 16).getNestedChildren().length == 0;
