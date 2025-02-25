@@ -19,6 +19,8 @@ import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.plugins.music.MusicConfig;
 import net.runelite.client.plugins.music.MusicPlugin;
 
+import java.util.List;
+
 @Slf4j
 @PluginDescriptor(
 	name = "Unmuted Jingles"
@@ -98,20 +100,21 @@ public class UnmutedJinglesPlugin extends Plugin
 	public void onGameTick(GameTick e){
 		jingleManager.tickJingle();
 
-		/*
 		List<MidiRequest> reqs = client.getActiveMidiRequests();
 		if (!reqs.isEmpty()){
 			reqs.forEach(req -> {
 				log.info("*G* req " + req.getArchiveId() + " " + req.isJingle());
+				/*
 				if (!req.isJingle()){
 					log.info("*G* req is not jingle! muting");
-					endJingle();
+					jingleManagerendJingle();
 				}
+
+				 */
 			});
 
 		}
 
-		 */
 	}
 
 	@Subscribe

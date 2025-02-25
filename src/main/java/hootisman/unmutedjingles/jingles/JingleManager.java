@@ -33,7 +33,7 @@ public class JingleManager {
     private boolean isJingleQueued;
 
     public JingleManager(){
-        jingleTick = 0;
+        jingleTick = -1;
         isJingleQueued = false;
 
     }
@@ -50,7 +50,7 @@ public class JingleManager {
         log.info("*j* unmuting for jingle...");
 
         toggleMusicVolume(false);
-        jingleTick = 1;
+        jingleTick = 0;
         isJingleQueued = false;
     }
 
@@ -58,7 +58,7 @@ public class JingleManager {
         log.info("*j* jingle ended, muting...");
 
         toggleMusicVolume(true);
-        jingleTick = 0;
+        jingleTick = -1;
 
     }
 
@@ -67,7 +67,7 @@ public class JingleManager {
 
         if(jingleTick > 10){
             endJingle();
-        }else if (jingleTick != 0){
+        }else if (jingleTick != -1){
             jingleTick += 1;
             log.info("*G* " + jingleTick);
         }
