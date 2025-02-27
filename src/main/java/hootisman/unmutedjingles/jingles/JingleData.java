@@ -96,8 +96,33 @@ public class JingleData {
                     36, 40, 41, 42, 44, 45, 48, 50, 54, 55, 56, 57, 60, 61, 62, 65,
                     68, 70, 71, 72, 75, 84, 90, 96, 99).collect(Collectors.toUnmodifiableSet());
 
-
-
+    //todo: test all durations
+    //(duration in seconds)/0.6
+    public static Map<Skill, Function<Integer, Integer>> JINGLE_DURATIONS = Map.ofEntries(
+            Map.entry(Skill.AGILITY, level -> 10),
+            Map.entry(Skill.ATTACK, getRegularUnlocksFunction(6,13,ATTACK_UNLOCKS)),
+            Map.entry(Skill.CONSTRUCTION, level -> 10),
+            Map.entry(Skill.COOKING, getRegularUnlocksFunction(7,6,COOKING_UNLOCKS)),
+            Map.entry(Skill.CRAFTING, getRegularUnlocksFunction(16,10,CRAFTING_UNLOCKS)),
+            Map.entry(Skill.DEFENCE, getRegularUnlocksFunction(9,12,DEFENCE_UNLOCKS)),
+            Map.entry(Skill.FARMING, getRegularUnlocksFunction(7,12,FARMING_UNLOCKS)),
+            Map.entry(Skill.FIREMAKING, getRegularUnlocksFunction(10,10,FIREMAKING_UNLOCKS)),
+            Map.entry(Skill.FISHING, getRegularUnlocksFunction(11,9,FISHING_UNLOCKS)),
+            Map.entry(Skill.FLETCHING, getRegularUnlocksFunction(9,8,FLETCHING_UNLOCKS)),
+            Map.entry(Skill.HERBLORE, getRegularUnlocksFunction(5,10,HERBLORE_UNLOCKS)),
+            Map.entry(Skill.HITPOINTS, level -> level < 50 ? 5 : 8),
+            Map.entry(Skill.HUNTER, level -> 12),
+            Map.entry(Skill.MAGIC, getRegularUnlocksFunction(11,11,MAGIC_UNLOCKS)),
+            Map.entry(Skill.MINING, getRegularUnlocksFunction(10,10,MINING_UNLOCKS)),
+            Map.entry(Skill.PRAYER, getRegularUnlocksFunction(12,12,PRAYER_UNLOCKS)),
+            Map.entry(Skill.RANGED, getRegularUnlocksFunction(8,9,RANGED_UNLOCKS)),
+            Map.entry(Skill.RUNECRAFT, getRegularUnlocksFunction(13,13,RUNECRAFT_UNLOCKS)),
+            Map.entry(Skill.SLAYER, getRegularUnlocksFunction(10,15,SLAYER_UNLOCKS)),
+            Map.entry(Skill.SMITHING, level -> 9),     //every level is an unlock
+            Map.entry(Skill.STRENGTH, level -> level < 50 ? 10 : 8),
+            Map.entry(Skill.THIEVING, getRegularUnlocksFunction(11,8,THIEVING_UNLOCKS)),
+            Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS))
+    );
 
     // ***** Mutable *****
     public static Map<Skill, Integer> SKILL_LEVELS = new HashMap<>();
@@ -127,40 +152,12 @@ public class JingleData {
         SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
     };
 
-    //todo: test all durations
-    //(duration in seconds)/0.6
-    public static Map<Skill, Function<Integer, Integer>> JINGLE_DURATIONS = Map.ofEntries(
-            Map.entry(Skill.AGILITY, level -> 10),
-            Map.entry(Skill.ATTACK, getRegularUnlocksFunction(6,13,ATTACK_UNLOCKS)),
-            Map.entry(Skill.CONSTRUCTION, level -> 10),
-            Map.entry(Skill.COOKING, getRegularUnlocksFunction(7,6,COOKING_UNLOCKS)),
-            Map.entry(Skill.CRAFTING, getRegularUnlocksFunction(16,10,CRAFTING_UNLOCKS)),
-            Map.entry(Skill.DEFENCE, getRegularUnlocksFunction(9,12,DEFENCE_UNLOCKS)),
-            Map.entry(Skill.FARMING, getRegularUnlocksFunction(7,12,FARMING_UNLOCKS)),
-            Map.entry(Skill.FIREMAKING, getRegularUnlocksFunction(10,10,FIREMAKING_UNLOCKS)),
-            Map.entry(Skill.FISHING, getRegularUnlocksFunction(11,9,FISHING_UNLOCKS)),
-            Map.entry(Skill.FLETCHING, getRegularUnlocksFunction(9,8,FLETCHING_UNLOCKS)),
-            Map.entry(Skill.HERBLORE, getRegularUnlocksFunction(5,10,HERBLORE_UNLOCKS)),
-            Map.entry(Skill.HITPOINTS, level -> level < 50 ? 5 : 8),
-            Map.entry(Skill.HUNTER, level -> 12),
-            Map.entry(Skill.MAGIC, getRegularUnlocksFunction(11,11,MAGIC_UNLOCKS)),
-            Map.entry(Skill.MINING, getRegularUnlocksFunction(10,10,MINING_UNLOCKS)),
-            Map.entry(Skill.PRAYER, getRegularUnlocksFunction(12,12,PRAYER_UNLOCKS)),
-            Map.entry(Skill.RANGED, getRegularUnlocksFunction(8,9,RANGED_UNLOCKS)),
-            Map.entry(Skill.RUNECRAFT, getRegularUnlocksFunction(13,13,RUNECRAFT_UNLOCKS)),
-            Map.entry(Skill.SLAYER, getRegularUnlocksFunction(10,15,SLAYER_UNLOCKS)),
-            Map.entry(Skill.SMITHING, level -> 9),     //every level is an unlock
-            Map.entry(Skill.STRENGTH, level -> level < 50 ? 10 : 8),
-            Map.entry(Skill.THIEVING, getRegularUnlocksFunction(11,8,THIEVING_UNLOCKS)),
-            Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS))
-    );
-
     //true if level was set at game start
     public static boolean isLevelInited(Skill skill){
         return SKILL_LEVELS.get(skill) != -1;
     }
 
     static Function<Integer, Integer> getRegularUnlocksFunction(int defaultDuration, int unlockDuration, Set<Integer> levelsWithUnlocks){
-        return level -> levelsWithUnlocks.contains(level) ? defaultDuration : unlockDuration;
+        return level -> levelsWithUnlocks.contains(level) ? unlockDuration : defaultDuration;
     }
 }

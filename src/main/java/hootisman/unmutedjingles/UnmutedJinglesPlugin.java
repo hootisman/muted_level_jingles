@@ -49,28 +49,32 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.info("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
+		//log.info("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
 		jingleManager.setMusicPluginConfig(pluginManager.isPluginEnabled(musicPlugin) ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
+	}
+
+	@Override
+	protected void shutDown() throws Exception {
+
 	}
 
 	@Subscribe
 	public void onPluginChanged(PluginChanged e){
 		if (!e.getPlugin().equals(musicPlugin)) return;
 
-		log.info("*P* Setting music plugin; isLoaded" + e.isLoaded());
+		//log.info("*P* Setting music plugin; isLoaded" + e.isLoaded());
 		jingleManager.setMusicPluginConfig(e.isLoaded() ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
 
 	}
 
 	@Subscribe
 	public void onVolumeChanged(VolumeChanged e){
-		//log.info("*V* " + e.toString() + " " + client.getMusicVolume());
 
 	}
 
 	@Subscribe
 	public void onStatChanged(StatChanged e){
-		log.info("*s* "+ e.toString());
+		//log.info("*s* "+ e.toString());
 
 		Skill skill = e.getSkill();
 		int level = e.getLevel();
@@ -80,14 +84,8 @@ public class UnmutedJinglesPlugin extends Plugin
 		//level never changed
 		if (listedLevel == level) return;
 
-
-		/*if ...
-			- skill level set at game start
-			- music is muted
-			- widget S161.16 has no open window (bank window, trading window, etc.)
-		 */
 		if (JingleData.isLevelInited(skill)){
-			jingleManager.startJingle();
+			jingleManager.queueJingle(skill, level);
         }
 
 		JingleData.SKILL_LEVELS.put(skill, level);
@@ -100,27 +98,21 @@ public class UnmutedJinglesPlugin extends Plugin
 	public void onGameTick(GameTick e){
 		jingleManager.tickJingle();
 
+		/*
 		List<MidiRequest> reqs = client.getActiveMidiRequests();
 		if (!reqs.isEmpty()){
 			reqs.forEach(req -> {
 				log.info("*G* req " + req.getArchiveId() + " " + req.isJingle());
-				/*
-				if (!req.isJingle()){
-					log.info("*G* req is not jingle! muting");
-					jingleManagerendJingle();
-				}
-
-				 */
 			});
 
 		}
-
+		 */
 	}
 
+	/*
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded e){
 		//todo: get other jingles to work
-		/*
 		log.info("*W* " + e.toString());
 
 		if(e.getGroupId() == 193){
@@ -131,7 +123,6 @@ public class UnmutedJinglesPlugin extends Plugin
 				startJingle();
 			}
 		}
-		*/
 
 		//level up window id
 		//else if(e.getGroupId() == 233){
@@ -139,6 +130,7 @@ public class UnmutedJinglesPlugin extends Plugin
 		//}
 	}
 
+	 */
 
 
 	@Provides
