@@ -78,7 +78,7 @@ public class JingleManager {
 
         if (isWindowClosed() && !jingleQueue.getFirst().isJinglePlaying) startJingle();
 
-        if (jingleTick > jingleQueue.getFirst().duration){
+        if (jingleTick > jingleQueue.getFirst().duration - 1){
             endJingle();
         }else if (jingleTick != -1){
             jingleTick += 1;
