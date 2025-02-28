@@ -49,37 +49,27 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		//log.info("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
+		log.debug("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
 		jingleManager.setMusicPluginConfig(pluginManager.isPluginEnabled(musicPlugin) ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
 	}
 
-	@Override
-	protected void shutDown() throws Exception {
-
-	}
 
 	@Subscribe
 	public void onPluginChanged(PluginChanged e){
 		if (!e.getPlugin().equals(musicPlugin)) return;
 
-		//log.info("*P* Setting music plugin; isLoaded" + e.isLoaded());
+		log.debug("*P* Setting music plugin; isLoaded" + e.isLoaded());
 		jingleManager.setMusicPluginConfig(e.isLoaded() ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
 
 	}
 
 	@Subscribe
-	public void onVolumeChanged(VolumeChanged e){
-
-	}
-
-	@Subscribe
 	public void onStatChanged(StatChanged e){
-		//log.info("*s* "+ e.toString());
-
 		Skill skill = e.getSkill();
 		int level = e.getLevel();
 		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
 
+		log.debug("*stat* " + e.toString());
 
 		//level never changed
 		if (listedLevel == level) return;

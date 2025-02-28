@@ -32,15 +32,11 @@ public class JingleManager {
 
     private int jingleTick;
 
-    private boolean isJingleQueued;
-
-    //todo: remove() when next jingle starts (when 2 or more jingles in queue)
     private LinkedList<Jingle> jingleQueue;
 
 
     public JingleManager(){
         jingleTick = -1;
-        isJingleQueued = false;
         jingleQueue = new LinkedList<>();
     }
 
@@ -50,7 +46,7 @@ public class JingleManager {
         if (jingleQueue.isEmpty() && !isMusicMuted()) return;
 
         int duration = JingleData.JINGLE_DURATIONS.get(skill).apply(level);
-        log.info("*j* adding " + skill +" jingle of " + duration);
+        log.debug("*j* adding " + skill +" jingle of " + duration);
         jingleQueue.add(Jingle.of(duration, false));
 
         if (!isWindowClosed()){
@@ -65,14 +61,14 @@ public class JingleManager {
         Jingle jingle = jingleQueue.getFirst();
 
         muteMusic(false);
-        log.info("*j* unmuting jingle for " + jingle.duration + " ticks...");
+        log.debug("*j* unmuting jingle for " + jingle.duration + " ticks...");
         jingleTick = 0;
         jingle.setJinglePlaying(true);
     }
 
     public void endJingle(){
         muteMusic(true);
-        log.info("*j* jingle ended, muting...");
+        log.debug("*j* jingle ended, muting...");
         jingleTick = -1;
         jingleQueue.remove();
     }
@@ -86,7 +82,7 @@ public class JingleManager {
             endJingle();
         }else if (jingleTick != -1){
             jingleTick += 1;
-            log.info("*G* " + jingleTick);
+            log.debug("*G* " + jingleTick);
         }
     }
 
