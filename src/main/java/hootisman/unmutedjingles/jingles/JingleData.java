@@ -110,7 +110,7 @@ public class JingleData {
             Map.entry(Skill.FISHING, getRegularUnlocksFunction(11,9,FISHING_UNLOCKS)),
             Map.entry(Skill.FLETCHING, getRegularUnlocksFunction(9,8,FLETCHING_UNLOCKS)),
             Map.entry(Skill.HERBLORE, getRegularUnlocksFunction(5,10,HERBLORE_UNLOCKS)),
-            Map.entry(Skill.HITPOINTS, level -> level < 50 ? 5 : 8),
+            Map.entry(Skill.HITPOINTS, level -> level < 50 ? 6 : 8),
             Map.entry(Skill.HUNTER, level -> 12),
             Map.entry(Skill.MAGIC, getRegularUnlocksFunction(11,11,MAGIC_UNLOCKS)),
             Map.entry(Skill.MINING, getRegularUnlocksFunction(10,10,MINING_UNLOCKS)),
@@ -123,6 +123,9 @@ public class JingleData {
             Map.entry(Skill.THIEVING, getRegularUnlocksFunction(11,8,THIEVING_UNLOCKS)),
             Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS))
     );
+
+    //since not a skill
+    public static final int COMBAT_JINGLE_DURATION = 9;
 
     // ***** Mutable *****
     public static Map<Skill, Integer> SKILL_LEVELS = new HashMap<>();
@@ -151,6 +154,12 @@ public class JingleData {
         SKILL_LEVELS.put(Skill.THIEVING, -1);
         SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
     };
+
+    public static int COMBAT_LEVEL = -1;
+
+    public static boolean isCombatLevelInited(){
+        return COMBAT_LEVEL != -1;
+    }
 
     //true if level was set at game start
     public static boolean isLevelInited(Skill skill){
