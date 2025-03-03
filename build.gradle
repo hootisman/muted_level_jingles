@@ -24,7 +24,7 @@ dependencies {
 }
 
 group = 'hootisman.unmutedjingles'
-version = '0.1'
+version = '0.1a'
 
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
