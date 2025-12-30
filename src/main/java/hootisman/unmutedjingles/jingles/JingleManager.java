@@ -1,6 +1,7 @@
 package hootisman.unmutedjingles.jingles;
 
 import hootisman.unmutedjingles.UnmutedJinglesConfig;
+import javax.inject.Named;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -29,6 +30,11 @@ public class JingleManager {
 
     @Inject
     private UnmutedJinglesConfig config;
+
+	@Inject
+	@Named("developerMode")
+	boolean developerMode;
+
 
     private int jingleTick;
 
@@ -100,7 +106,7 @@ public class JingleManager {
 
     //if widget S161.16 has 1 or more children, then return true
     public boolean isWindowClosed() {
-        return Objects.requireNonNull(client.getWidget(161, 16)).getNestedChildren().length == 0;
+        return developerMode || Objects.requireNonNull(client.getWidget(161, 16)).getNestedChildren().length == 0;
     }
 
     public boolean isMusicMuted(){

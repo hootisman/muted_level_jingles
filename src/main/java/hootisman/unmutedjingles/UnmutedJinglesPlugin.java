@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import hootisman.unmutedjingles.jingles.JingleData;
 import hootisman.unmutedjingles.jingles.JingleManager;
+import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -46,6 +47,10 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Inject
 	private JingleManager jingleManager;
 
+	@Inject
+	@Named("developerMode")
+	boolean developerMode;
+
 	@Override
 	protected void startUp() throws Exception
 	{
@@ -65,22 +70,47 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onStatChanged(StatChanged e){
-		Skill skill = e.getSkill();
-		int level = e.getLevel();
-		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
-
 		log.debug("*stat* " + e.toString());
+		queueJingle(e.getSkill(), e.getLevel());
+	}
+
+	private void queueJingle(Skill skill, int level)
+	{
+		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
 
 		//level never changed
 		if (listedLevel == level) return;
 
 		if (JingleData.isLevelInited(skill)){
 			jingleManager.queueJingle(skill, level);
-        }
+		}
 
 		JingleData.SKILL_LEVELS.put(skill, level);
 	}
 
+
+	@Subscribe
+	public void onCommandExecuted(CommandExecuted e)
+	{
+		if (developerMode && e.getCommand().equals("qj"))
+		{
+			var task = String.join(" ", e.getArguments());
+			Skill s = Skill.valueOf(task.split(" ")[0].toUpperCase());
+			int level = 42;
+			try
+			{
+				level = Integer.parseInt(task.split(" ")[1]);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
+			if (s != null)
+			{
+				queueJingle(s, level);
+			}
+		}
+	}
 
 
 
