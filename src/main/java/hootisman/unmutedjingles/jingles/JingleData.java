@@ -96,6 +96,11 @@ public class JingleData {
                     36, 40, 41, 42, 44, 45, 48, 50, 54, 55, 56, 57, 60, 61, 62, 65,
                     68, 70, 71, 72, 75, 84, 90, 96, 99).collect(Collectors.toUnmodifiableSet());
 
+	// TODO: Assign real unlocks for sailing, if anybody care
+	// currently not used
+	static final Set<Integer> SAILING_UNLOCKS =
+		Stream.of(15, 42, 69, 99).collect(Collectors.toUnmodifiableSet());
+
     //todo: test all durations
     //(duration in seconds)/0.6
     public static Map<Skill, Function<Integer, Integer>> JINGLE_DURATIONS = Map.ofEntries(
@@ -121,8 +126,9 @@ public class JingleData {
             Map.entry(Skill.SMITHING, level -> 9),     //every level is an unlock
             Map.entry(Skill.STRENGTH, level -> level < 50 ? 10 : 8),
             Map.entry(Skill.THIEVING, getRegularUnlocksFunction(11,8,THIEVING_UNLOCKS)),
-            Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS))
-    );
+            Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS)),
+            Map.entry(Skill.SAILING, level -> 8)
+		);
 
     //since not a skill
     public static final int COMBAT_JINGLE_DURATION = 9;
@@ -152,7 +158,8 @@ public class JingleData {
         SKILL_LEVELS.put(Skill.SMITHING, -1);
         SKILL_LEVELS.put(Skill.STRENGTH, -1);
         SKILL_LEVELS.put(Skill.THIEVING, -1);
-        SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
+		SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
+		SKILL_LEVELS.put(Skill.SAILING, -1);
     };
 
     public static int COMBAT_LEVEL = -1;
