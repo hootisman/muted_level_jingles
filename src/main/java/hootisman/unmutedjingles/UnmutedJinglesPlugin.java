@@ -1,10 +1,8 @@
 package hootisman.unmutedjingles;
 
-import com.formdev.flatlaf.util.StringUtils;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 
-import hootisman.unmutedjingles.jingles.JingleData;
 import hootisman.unmutedjingles.jingles.JingleManager;
 import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -12,23 +10,19 @@ import net.runelite.api.*;
 import net.runelite.api.events.*;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.Widget;
 import net.runelite.client.audio.AudioPlayer;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.PluginChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
-import net.runelite.client.plugins.music.MusicConfig;
 import net.runelite.client.plugins.music.MusicPlugin;
-import net.runelite.client.plugins.screenshot.ScreenshotPlugin;
 
 import java.io.File;
-import java.util.List;
 import java.util.regex.Matcher;
 
 @Slf4j
@@ -69,38 +63,25 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	}
 
-
 	@Subscribe
 	public void onPluginChanged(PluginChanged e){
 
 	}
 
-	//todo: there should be some sort of level check beforehand
 	@Subscribe
-	public void onStatChanged(StatChanged e){
-		if(client.getMusicVolume() != 0) return;
+	public void onConfigChanged(ConfigChanged e){
+		log.debug(getName());
+		if (e.getGroup().equals("unmutedjingles") && e.getKey().equals("jingleTest")){
+			log.debug("jingletest pressed!");
+			try{
+				File file = new File("sounds/woodcutting_unlocks.wav");
+				audioPlayer.play(file, (float) config.jingleGain() - 50);
+			}catch (Exception ex){
+				log.debug("Failed test audio");
+			}
 
-
-		//log.debug("*stat* " + e.toString());
-		//queueJingle(e.getSkill(), e.getLevel());
-	}
-
-	//todo: delete
-	//attempts to queue a jingle
-	private void queueJingle(Skill skill, int level)
-	{
-		int oldLevel = JingleData.SKILL_LEVELS.get(skill);
-
-		//level never changed
-		if (oldLevel == level) return;
-
-		if (JingleData.isLevelInited(skill)){
-			//jingleManager.queueJingle(skill, level);
 		}
-
-		JingleData.SKILL_LEVELS.put(skill, level);
 	}
-
 
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
@@ -128,17 +109,17 @@ public class UnmutedJinglesPlugin extends Plugin
 				break;
 
 			 */
-			case "jtcp":
-				String testparsee = String.join(" ", e.getArguments());
-				log.debug("\"" + testparsee + "\"");
-				Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(testparsee);
-				jingleManager.queueJingleFromMatcher(m);
+			case "testjin":
+				log.debug("testing jingle");
+				//JingleData.SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
+				Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Woodcutting level. You are now level 37.");
+				jingleManager.queueJingleWithChatMsg(m);
 				break;
-			case "jtwp":
-				String testparsee2 = String.join(" ", e.getArguments());
-				log.debug("\"" + testparsee2 + "\"");
-				Matcher m2 = JingleManager.LEVEL_UP_PATTERN.matcher(testparsee2);
-				jingleManager.queueJingleFromMatcher(m2);
+
+			case "testcombat":
+				log.debug("testing combat jingle");
+				Matcher m1 = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Combat level. You are now level 37.");
+				jingleManager.queueJingleWithChatMsg(m1);
 				break;
 
 			case "pj":
@@ -160,46 +141,41 @@ public class UnmutedJinglesPlugin extends Plugin
 		}
 	}
 
-
-
 	@Subscribe
 	public void onGameTick(GameTick e){
 		jingleManager.tickJingle();
 
-		/*
-		List<MidiRequest> reqs = client.getActiveMidiRequests();
-		if (!reqs.isEmpty()){
-			reqs.forEach(req -> {
-				log.info("*G* req " + req.getArchiveId() + " " + req.isJingle());
-			});
-
-		}
-		 */
 	}
 
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded e){
-		/*
 		if (client.getMusicVolume() != 0 || jingleManager.isLevelPopupDisabled()) return;
 
-
-
+		//If a level up display widget shows up, start queueing a jingle
 		if (e.getGroupId() == InterfaceID.LEVELUP_DISPLAY){
-
+			log.debug("*WIDLOD* level up via widget!");
+			jingleManager.widgetLevelUp = true;
 		}
-*/
-
 	}
 
 	@Subscribe
 	public void onChatMessage(ChatMessage e){
 		if(client.getMusicVolume() != 0 || !jingleManager.isLevelPopupDisabled()) return;
 
+		//if a level up chat message shows up, start queueing a jingle
 		Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(e.getMessage());
-		jingleManager.queueJingleFromMatcher(m);
+		jingleManager.queueJingleWithChatMsg(m);
 	}
 
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged e){
+		log.debug(e.toString());
+		if (e.getVarbitId() == VarbitID.OPTION_LEVEL_UP_MESSAGE){
+			log.debug("*VBChgd* Level up changed to " + e.getValue());
+			jingleManager.clearJingleQueue();
+		}
+	}
 
 
 	@Provides

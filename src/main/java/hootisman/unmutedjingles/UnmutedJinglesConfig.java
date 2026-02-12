@@ -8,15 +8,21 @@ import net.runelite.client.config.Range;
 @ConfigGroup("unmutedjingles")
 public interface UnmutedJinglesConfig extends Config
 {
-	@Range(max=255)
 	@ConfigItem(
-		keyName = "jingleVolume",
-		name = "Jingle Volume",
-		description = "Volume when jingles are played"
+			keyName = "jingleTest",
+			name = "Jingle Test",
+			description = "When pressed, will play a jingle; Used to test volume"
 	)
-	default int jingleVolume()
+	default boolean jingleTest()
 	{
-		return 50;
+		return false;
 	}
 
+	@Range(max=56)
+	@ConfigItem(
+			keyName = "jingleGain",
+			name = "Jingle Gain/Volume",
+			description = "Volume when jingles are played"
+	)
+	default double jingleGain() {return 47.0;}
 }

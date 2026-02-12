@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class JingleData {
@@ -96,44 +97,35 @@ public class JingleData {
                     36, 40, 41, 42, 44, 45, 48, 50, 54, 55, 56, 57, 60, 61, 62, 65,
                     68, 70, 71, 72, 75, 84, 90, 96, 99).collect(Collectors.toUnmodifiableSet());
 
-	// TODO: Assign real unlocks for sailing, if anybody care
-	// currently not used
+    static final Set<Integer> CONSTRUCTION_UNLOCKS =
+            Stream.of(10, 20, 30, 40, 50, 60, 70, 80, 90)
+                    .collect(Collectors.toUnmodifiableSet());
+
+    static final Set<Integer> HITPOINTS_UNLOCKS =
+            IntStream.rangeClosed(50, 99)
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+
+    static final Set<Integer> HUNTER_UNLOCKS =
+            IntStream.rangeClosed(1, 99)
+                    .filter(n -> n % 2 == 1)
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+
+    static final Set<Integer> STRENGTH_UNLOCKS =
+            IntStream.rangeClosed(50, 99)
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+
+	// The real and awesomest unlock levels for sailing
 	static final Set<Integer> SAILING_UNLOCKS =
 		Stream.of(15, 42, 69, 99).collect(Collectors.toUnmodifiableSet());
 
-    //TODO: probably delete?
-    public static Map<Skill, Function<Integer, Integer>> JINGLE_DURATIONS = Map.ofEntries(
-            Map.entry(Skill.AGILITY, level -> 10),
-            Map.entry(Skill.ATTACK, getRegularUnlocksFunction(6,13,ATTACK_UNLOCKS)),
-            Map.entry(Skill.CONSTRUCTION, level -> 10),
-            Map.entry(Skill.COOKING, getRegularUnlocksFunction(7,6,COOKING_UNLOCKS)),
-            Map.entry(Skill.CRAFTING, getRegularUnlocksFunction(16,10,CRAFTING_UNLOCKS)),
-            Map.entry(Skill.DEFENCE, getRegularUnlocksFunction(9,12,DEFENCE_UNLOCKS)),
-            Map.entry(Skill.FARMING, getRegularUnlocksFunction(7,12,FARMING_UNLOCKS)),
-            Map.entry(Skill.FIREMAKING, getRegularUnlocksFunction(10,10,FIREMAKING_UNLOCKS)),
-            Map.entry(Skill.FISHING, getRegularUnlocksFunction(11,9,FISHING_UNLOCKS)),
-            Map.entry(Skill.FLETCHING, getRegularUnlocksFunction(9,8,FLETCHING_UNLOCKS)),
-            Map.entry(Skill.HERBLORE, getRegularUnlocksFunction(5,10,HERBLORE_UNLOCKS)),
-            Map.entry(Skill.HITPOINTS, level -> level < 50 ? 6 : 8),
-            Map.entry(Skill.HUNTER, level -> 12),
-            Map.entry(Skill.MAGIC, getRegularUnlocksFunction(11,11,MAGIC_UNLOCKS)),
-            Map.entry(Skill.MINING, getRegularUnlocksFunction(10,10,MINING_UNLOCKS)),
-            Map.entry(Skill.PRAYER, getRegularUnlocksFunction(12,12,PRAYER_UNLOCKS)),
-            Map.entry(Skill.RANGED, getRegularUnlocksFunction(8,9,RANGED_UNLOCKS)),
-            Map.entry(Skill.RUNECRAFT, getRegularUnlocksFunction(13,13,RUNECRAFT_UNLOCKS)),
-            Map.entry(Skill.SLAYER, getRegularUnlocksFunction(10,15,SLAYER_UNLOCKS)),
-            Map.entry(Skill.SMITHING, level -> 9),     //every level is an unlock
-            Map.entry(Skill.STRENGTH, level -> level < 50 ? 10 : 8),
-            Map.entry(Skill.THIEVING, getRegularUnlocksFunction(11,8,THIEVING_UNLOCKS)),
-            Map.entry(Skill.WOODCUTTING, getRegularUnlocksFunction(10,11,WOODCUTTING_UNLOCKS)),
-            Map.entry(Skill.SAILING, level -> 8)
-		);
 
-    //
     public static Map<Skill, Set<Integer>> UNLOCK_LEVELS = Map.ofEntries(
             Map.entry(Skill.AGILITY, Set.of()),
             Map.entry(Skill.ATTACK, ATTACK_UNLOCKS),
-            Map.entry(Skill.CONSTRUCTION, Set.of()),
+            Map.entry(Skill.CONSTRUCTION, CONSTRUCTION_UNLOCKS),
             Map.entry(Skill.COOKING, COOKING_UNLOCKS),
             Map.entry(Skill.CRAFTING, CRAFTING_UNLOCKS),
             Map.entry(Skill.DEFENCE, DEFENCE_UNLOCKS),
@@ -142,68 +134,19 @@ public class JingleData {
             Map.entry(Skill.FISHING, FISHING_UNLOCKS),
             Map.entry(Skill.FLETCHING, FLETCHING_UNLOCKS),
             Map.entry(Skill.HERBLORE, HERBLORE_UNLOCKS),
-            Map.entry(Skill.HITPOINTS, Set.of()),
-            Map.entry(Skill.HUNTER, Set.of()),
+            Map.entry(Skill.HITPOINTS, HITPOINTS_UNLOCKS),
+            Map.entry(Skill.HUNTER, HUNTER_UNLOCKS),
             Map.entry(Skill.MAGIC, MAGIC_UNLOCKS),
             Map.entry(Skill.MINING, MINING_UNLOCKS),
             Map.entry(Skill.PRAYER, PRAYER_UNLOCKS),
             Map.entry(Skill.RANGED, RANGED_UNLOCKS),
             Map.entry(Skill.RUNECRAFT, RUNECRAFT_UNLOCKS),
             Map.entry(Skill.SLAYER, SLAYER_UNLOCKS),
-            Map.entry(Skill.SMITHING, Set.of()),     //every level is an unlock
-            Map.entry(Skill.STRENGTH, Set.of()),
+            Map.entry(Skill.SMITHING, Set.of()),     //every level is an unlock; smithing.wav is set to the unlock jingle, not the defualt level up sound
+            Map.entry(Skill.STRENGTH, STRENGTH_UNLOCKS),
             Map.entry(Skill.THIEVING, THIEVING_UNLOCKS),
             Map.entry(Skill.WOODCUTTING, WOODCUTTING_UNLOCKS),
             Map.entry(Skill.SAILING, SAILING_UNLOCKS)
     );
 
-    //since not a skill
-    public static final int COMBAT_JINGLE_DURATION = 9;
-
-    // ***** Mutable *****
-    //*** IMPORTANT *** if you ever try to start a jingle based on actual stat changes/skill recording, you MUST check
-    //if its been initialized at startup. Right now, it only records the level when the level up message shows up, to stop
-    //duplicate jingles (so it should be fine)
-    public static Map<Skill, Integer> SKILL_LEVELS = new HashMap<>();
-    static {
-        SKILL_LEVELS.put(Skill.AGILITY, -1);
-        SKILL_LEVELS.put(Skill.ATTACK, -1);
-        SKILL_LEVELS.put(Skill.CONSTRUCTION, -1);
-        SKILL_LEVELS.put(Skill.COOKING, -1);
-        SKILL_LEVELS.put(Skill.CRAFTING, -1);
-        SKILL_LEVELS.put(Skill.DEFENCE, -1);
-        SKILL_LEVELS.put(Skill.FARMING, -1);
-        SKILL_LEVELS.put(Skill.FIREMAKING, -1);
-        SKILL_LEVELS.put(Skill.FISHING, -1);
-        SKILL_LEVELS.put(Skill.FLETCHING, -1);
-        SKILL_LEVELS.put(Skill.HERBLORE, -1);
-        SKILL_LEVELS.put(Skill.HITPOINTS, -1);
-        SKILL_LEVELS.put(Skill.HUNTER, -1);
-        SKILL_LEVELS.put(Skill.MAGIC, -1);
-        SKILL_LEVELS.put(Skill.MINING, -1);
-        SKILL_LEVELS.put(Skill.PRAYER, -1);
-        SKILL_LEVELS.put(Skill.RANGED, -1);
-        SKILL_LEVELS.put(Skill.RUNECRAFT, -1);
-        SKILL_LEVELS.put(Skill.SLAYER, -1);
-        SKILL_LEVELS.put(Skill.SMITHING, -1);
-        SKILL_LEVELS.put(Skill.STRENGTH, -1);
-        SKILL_LEVELS.put(Skill.THIEVING, -1);
-		SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
-		SKILL_LEVELS.put(Skill.SAILING, -1);
-    };
-
-    public static int COMBAT_LEVEL = -1;
-
-    public static boolean isCombatLevelInited(){
-        return COMBAT_LEVEL != -1;
-    }
-
-    //true if level was set at game start
-    public static boolean isLevelInited(Skill skill){
-        return SKILL_LEVELS.get(skill) != -1;
-    }
-
-    static Function<Integer, Integer> getRegularUnlocksFunction(int defaultDuration, int unlockDuration, Set<Integer> levelsWithUnlocks){
-        return level -> levelsWithUnlocks.contains(level) ? unlockDuration : defaultDuration;
-    }
 }
