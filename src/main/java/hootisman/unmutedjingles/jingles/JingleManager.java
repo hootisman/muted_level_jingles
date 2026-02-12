@@ -46,6 +46,7 @@ public class JingleManager {
     public static final Pattern LEVEL_UP_MESSAGE_PATTERN = Pattern.compile("Congratulations, you've (just advanced your (?<skill>[a-zA-Z]+) level\\. You are now level (?<level>\\d+)|reached the highest possible (?<skill99>[a-zA-Z]+) level of 99)\\.");
     public static final String SOUNDS_PATH = "sounds/";
 
+    //true when a level up widget shows up, otherwise false
     public boolean widgetLevelUp;
     private LinkedList<Jingle> jingleQueue;
 
@@ -63,6 +64,7 @@ public class JingleManager {
         startJingle(jingleQueue.getLast());
     }
 
+    //Will attempt to play the given jingle, then deletes from the queue
     private void startJingle(Jingle jingle){
         log.debug("*STARTJIN* starting jingle");
 
@@ -74,22 +76,27 @@ public class JingleManager {
         jingleQueue.remove(jingle);
     }
 
-    //checks every game tick to update the queue
+
     public void tickJingle(){
         if (jingleQueue.isEmpty() && !widgetLevelUp) return;
 
+        //will get here if
+        //1. Level widgets are disabled and a level up jingle was added to jingleQueue from onChatMessage
+        //2. Level widgets are not disabled and a level up widget popped up from onWidgetLoaded
+
         if (isLevelPopupDisabled()){
-            //Tries to start the most recent level up using Level Up chat message (not the widget)
+            //widgets disabled, jingle in queue already
             startLastJingle();
             jingleQueue.clear();
         }else {
-            //Tries to get the Level Up widget (not the chat message)
+            //widgets enabled, jingle NOT in queue, must find
             //Also from Screenshot Plugin
             Widget levelUpWidget = null;
             if(client.getWidget(InterfaceID.LevelupDisplay.TEXT2) != null){
                 levelUpWidget = client.getWidget(InterfaceID.LevelupDisplay.TEXT2);
             }else if (client.getWidget(InterfaceID.Objectbox.TEXT) != null &&
                     !Text.removeTags(client.getWidget(InterfaceID.Objectbox.TEXT).getText()).contains("High level gamble")){
+                //probably the combat level widget? idk
                 levelUpWidget = client.getWidget(InterfaceID.Objectbox.TEXT);
             }
 
@@ -103,10 +110,12 @@ public class JingleManager {
 
     }
 
+    //true if levelup widget is disabled, otherwise false
     public boolean isLevelPopupDisabled(){
         return client.getVarbitValue(VarbitID.OPTION_LEVEL_UP_MESSAGE) == 1;
     }
 
+    //Adds skill jingle to the queue; automatically opens the sound File
     private void queueJingle(Skill skill, int level){
         log.debug("*QUEJIN* adding " + skill +" jingle");
 
@@ -119,6 +128,7 @@ public class JingleManager {
     }
 
     //nonskill jingles
+    //todo: add literally everythign else
     private void queueOtherJingle(String type){
         String path = "";
         switch (type){
@@ -133,6 +143,9 @@ public class JingleManager {
         jingleQueue.add(Jingle.of(soundFile));
     }
 
+    //todo: combine this and other duplicate widget function
+    //adds a jingle using a chat message and a regex
+    //only works for level/combat level chat messages
     public void queueJingleWithChatMsg(Matcher m){
         if (m.matches()){
             String skill_str = m.group("skill").toUpperCase();
@@ -154,6 +167,9 @@ public class JingleManager {
 
         }
     }
+
+    //adds a jingle using a widget and a regex
+    //probably only works for level up/combat level widgets
     public void queueJingleWithWidget(Matcher m){
         if (m.matches()){
             String skill_str = m.group(1).toUpperCase();
@@ -182,5 +198,6 @@ public class JingleManager {
     @AllArgsConstructor(access = AccessLevel.PROTECTED, staticName = "of")
     private static class Jingle {
         File file;
+        //:P
     }
 }

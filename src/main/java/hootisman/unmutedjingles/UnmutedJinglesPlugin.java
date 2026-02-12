@@ -84,6 +84,46 @@ public class UnmutedJinglesPlugin extends Plugin
 	}
 
 	@Subscribe
+	public void onGameTick(GameTick e){
+		jingleManager.tickJingle();
+	}
+
+	@Subscribe
+	public void onWidgetLoaded(WidgetLoaded e){
+		if (client.getMusicVolume() != 0 || jingleManager.isLevelPopupDisabled()) return;
+
+		//If a level up display widget shows up, flag that it showed up; jingle queue handled in jinglemanager
+		if (e.getGroupId() == InterfaceID.LEVELUP_DISPLAY){
+			log.debug("*WIDLOD* level up via widget!");
+			jingleManager.widgetLevelUp = true;
+		}
+	}
+
+	@Subscribe
+	public void onChatMessage(ChatMessage e){
+		if(client.getMusicVolume() != 0 || !jingleManager.isLevelPopupDisabled()) return;
+
+		//If a level up chat message shows up, start queueing a jingle
+		Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(e.getMessage());
+		jingleManager.queueJingleWithChatMsg(m);
+	}
+
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged e){
+		log.debug(e.toString());
+		if (e.getVarbitId() == VarbitID.OPTION_LEVEL_UP_MESSAGE){
+			jingleManager.clearJingleQueue();
+		}
+	}
+
+	@Provides
+	UnmutedJinglesConfig provideConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(UnmutedJinglesConfig.class);
+	}
+
+	//debugging commands
+	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
 	{
 		if (!developerMode) return;
@@ -112,13 +152,13 @@ public class UnmutedJinglesPlugin extends Plugin
 			case "testjin":
 				log.debug("testing jingle");
 				//JingleData.SKILL_LEVELS.put(Skill.WOODCUTTING, -1);
-				Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Woodcutting level. You are now level 37.");
+				Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Woodcutting level. You are now level 42.");
 				jingleManager.queueJingleWithChatMsg(m);
 				break;
 
 			case "testcombat":
 				log.debug("testing combat jingle");
-				Matcher m1 = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Combat level. You are now level 37.");
+				Matcher m1 = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher("Congratulations, you've just advanced your Combat level. You are now level 42.");
 				jingleManager.queueJingleWithChatMsg(m1);
 				break;
 
@@ -139,48 +179,5 @@ public class UnmutedJinglesPlugin extends Plugin
 			default:
 				break;
 		}
-	}
-
-	@Subscribe
-	public void onGameTick(GameTick e){
-		jingleManager.tickJingle();
-
-	}
-
-
-	@Subscribe
-	public void onWidgetLoaded(WidgetLoaded e){
-		if (client.getMusicVolume() != 0 || jingleManager.isLevelPopupDisabled()) return;
-
-		//If a level up display widget shows up, start queueing a jingle
-		if (e.getGroupId() == InterfaceID.LEVELUP_DISPLAY){
-			log.debug("*WIDLOD* level up via widget!");
-			jingleManager.widgetLevelUp = true;
-		}
-	}
-
-	@Subscribe
-	public void onChatMessage(ChatMessage e){
-		if(client.getMusicVolume() != 0 || !jingleManager.isLevelPopupDisabled()) return;
-
-		//if a level up chat message shows up, start queueing a jingle
-		Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(e.getMessage());
-		jingleManager.queueJingleWithChatMsg(m);
-	}
-
-	@Subscribe
-	public void onVarbitChanged(VarbitChanged e){
-		log.debug(e.toString());
-		if (e.getVarbitId() == VarbitID.OPTION_LEVEL_UP_MESSAGE){
-			log.debug("*VBChgd* Level up changed to " + e.getValue());
-			jingleManager.clearJingleQueue();
-		}
-	}
-
-
-	@Provides
-	UnmutedJinglesConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(UnmutedJinglesConfig.class);
 	}
 }
