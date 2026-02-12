@@ -1,5 +1,6 @@
 package hootisman.unmutedjingles;
 
+import com.formdev.flatlaf.util.StringUtils;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 
@@ -9,6 +10,11 @@ import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarbitID;
+import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.widgets.Widget;
+import net.runelite.client.audio.AudioPlayer;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -19,8 +25,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.plugins.music.MusicConfig;
 import net.runelite.client.plugins.music.MusicPlugin;
+import net.runelite.client.plugins.screenshot.ScreenshotPlugin;
 
+import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
 
 @Slf4j
 @PluginDescriptor(
@@ -48,41 +57,45 @@ public class UnmutedJinglesPlugin extends Plugin
 	private JingleManager jingleManager;
 
 	@Inject
+	private AudioPlayer audioPlayer;
+
+	@Inject
 	@Named("developerMode")
 	boolean developerMode;
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.debug("*START* Setting music plugin; isEnabled" + pluginManager.isPluginEnabled(musicPlugin));
-		jingleManager.setMusicPluginConfig(pluginManager.isPluginEnabled(musicPlugin) ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
+
 	}
 
 
 	@Subscribe
 	public void onPluginChanged(PluginChanged e){
-		if (!e.getPlugin().equals(musicPlugin)) return;
-
-		log.debug("*P* Setting music plugin; isLoaded" + e.isLoaded());
-		jingleManager.setMusicPluginConfig(e.isLoaded() ? (MusicConfig) pluginManager.getPluginConfigProxy(musicPlugin) : null);
 
 	}
 
+	//todo: there should be some sort of level check beforehand
 	@Subscribe
 	public void onStatChanged(StatChanged e){
-		log.debug("*stat* " + e.toString());
-		queueJingle(e.getSkill(), e.getLevel());
+		if(client.getMusicVolume() != 0) return;
+
+
+		//log.debug("*stat* " + e.toString());
+		//queueJingle(e.getSkill(), e.getLevel());
 	}
 
+	//todo: delete
+	//attempts to queue a jingle
 	private void queueJingle(Skill skill, int level)
 	{
-		int listedLevel = JingleData.SKILL_LEVELS.get(skill);
+		int oldLevel = JingleData.SKILL_LEVELS.get(skill);
 
 		//level never changed
-		if (listedLevel == level) return;
+		if (oldLevel == level) return;
 
 		if (JingleData.isLevelInited(skill)){
-			jingleManager.queueJingle(skill, level);
+			//jingleManager.queueJingle(skill, level);
 		}
 
 		JingleData.SKILL_LEVELS.put(skill, level);
@@ -92,23 +105,58 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
 	{
-		if (developerMode && e.getCommand().equals("qj"))
-		{
-			var task = String.join(" ", e.getArguments());
-			Skill s = Skill.valueOf(task.split(" ")[0].toUpperCase());
-			int level = 42;
-			try
-			{
-				level = Integer.parseInt(task.split(" ")[1]);
-			}
-			catch (Exception ex)
-			{
-				// ignore
-			}
-			if (s != null)
-			{
-				queueJingle(s, level);
-			}
+		if (!developerMode) return;
+
+		switch(e.getCommand()){
+			/*
+			case "qj":
+				var task = String.join(" ", e.getArguments());
+				Skill s = Skill.valueOf(task.split(" ")[0].toUpperCase());
+				int level = 42;
+				try
+				{
+					level = Integer.parseInt(task.split(" ")[1]);
+				}
+				catch (Exception ex)
+				{
+					// ignore
+				}
+				if (s != null)
+				{
+					queueJingle(s, level);
+				}
+				break;
+
+			 */
+			case "jtcp":
+				String testparsee = String.join(" ", e.getArguments());
+				log.debug("\"" + testparsee + "\"");
+				Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(testparsee);
+				jingleManager.queueJingleFromMatcher(m);
+				break;
+			case "jtwp":
+				String testparsee2 = String.join(" ", e.getArguments());
+				log.debug("\"" + testparsee2 + "\"");
+				Matcher m2 = JingleManager.LEVEL_UP_PATTERN.matcher(testparsee2);
+				jingleManager.queueJingleFromMatcher(m2);
+				break;
+
+			case "pj":
+				//play a file using audioplayer
+				var soundName = String.join(" ", e.getArguments());
+
+				File sound = new File("sounds/" + soundName + ".wav");
+				log.debug("playing jingle");
+				log.debug(sound.getAbsolutePath());
+
+				try{
+					audioPlayer.play(sound, (float) 1.0);
+					//audioPlayer.play(new File("sounds/combat.wav"), (float) 1.0);
+				}catch(Exception ex){}
+
+
+			default:
+				break;
 		}
 	}
 
@@ -129,28 +177,29 @@ public class UnmutedJinglesPlugin extends Plugin
 		 */
 	}
 
-	/*
+
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded e){
-		//todo: get other jingles to work
-		log.info("*W* " + e.toString());
+		/*
+		if (client.getMusicVolume() != 0 || jingleManager.isLevelPopupDisabled()) return;
 
-		if(e.getGroupId() == 193){
-			Widget icon  = client.getWidget(ComponentID.DIALOG_SPRITE_SPRITE);
 
-			if (icon != null && icon.getItemId() == 2996){
-				log.info("*W* This is a brimhaven ticket!");
-				startJingle();
-			}
+
+		if (e.getGroupId() == InterfaceID.LEVELUP_DISPLAY){
+
 		}
+*/
 
-		//level up window id
-		//else if(e.getGroupId() == 233){
-		//	startJingle();
-		//}
 	}
 
-	 */
+	@Subscribe
+	public void onChatMessage(ChatMessage e){
+		if(client.getMusicVolume() != 0 || !jingleManager.isLevelPopupDisabled()) return;
+
+		Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(e.getMessage());
+		jingleManager.queueJingleFromMatcher(m);
+	}
+
 
 
 	@Provides

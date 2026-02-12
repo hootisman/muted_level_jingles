@@ -101,8 +101,7 @@ public class JingleData {
 	static final Set<Integer> SAILING_UNLOCKS =
 		Stream.of(15, 42, 69, 99).collect(Collectors.toUnmodifiableSet());
 
-    //todo: test all durations
-    //(duration in seconds)/0.6
+    //TODO: probably delete?
     public static Map<Skill, Function<Integer, Integer>> JINGLE_DURATIONS = Map.ofEntries(
             Map.entry(Skill.AGILITY, level -> 10),
             Map.entry(Skill.ATTACK, getRegularUnlocksFunction(6,13,ATTACK_UNLOCKS)),
@@ -130,10 +129,41 @@ public class JingleData {
             Map.entry(Skill.SAILING, level -> 8)
 		);
 
+    //
+    public static Map<Skill, Set<Integer>> UNLOCK_LEVELS = Map.ofEntries(
+            Map.entry(Skill.AGILITY, Set.of()),
+            Map.entry(Skill.ATTACK, ATTACK_UNLOCKS),
+            Map.entry(Skill.CONSTRUCTION, Set.of()),
+            Map.entry(Skill.COOKING, COOKING_UNLOCKS),
+            Map.entry(Skill.CRAFTING, CRAFTING_UNLOCKS),
+            Map.entry(Skill.DEFENCE, DEFENCE_UNLOCKS),
+            Map.entry(Skill.FARMING, FARMING_UNLOCKS),
+            Map.entry(Skill.FIREMAKING, FIREMAKING_UNLOCKS),
+            Map.entry(Skill.FISHING, FISHING_UNLOCKS),
+            Map.entry(Skill.FLETCHING, FLETCHING_UNLOCKS),
+            Map.entry(Skill.HERBLORE, HERBLORE_UNLOCKS),
+            Map.entry(Skill.HITPOINTS, Set.of()),
+            Map.entry(Skill.HUNTER, Set.of()),
+            Map.entry(Skill.MAGIC, MAGIC_UNLOCKS),
+            Map.entry(Skill.MINING, MINING_UNLOCKS),
+            Map.entry(Skill.PRAYER, PRAYER_UNLOCKS),
+            Map.entry(Skill.RANGED, RANGED_UNLOCKS),
+            Map.entry(Skill.RUNECRAFT, RUNECRAFT_UNLOCKS),
+            Map.entry(Skill.SLAYER, SLAYER_UNLOCKS),
+            Map.entry(Skill.SMITHING, Set.of()),     //every level is an unlock
+            Map.entry(Skill.STRENGTH, Set.of()),
+            Map.entry(Skill.THIEVING, THIEVING_UNLOCKS),
+            Map.entry(Skill.WOODCUTTING, WOODCUTTING_UNLOCKS),
+            Map.entry(Skill.SAILING, SAILING_UNLOCKS)
+    );
+
     //since not a skill
     public static final int COMBAT_JINGLE_DURATION = 9;
 
     // ***** Mutable *****
+    //*** IMPORTANT *** if you ever try to start a jingle based on actual stat changes/skill recording, you MUST check
+    //if its been initialized at startup. Right now, it only records the level when the level up message shows up, to stop
+    //duplicate jingles (so it should be fine)
     public static Map<Skill, Integer> SKILL_LEVELS = new HashMap<>();
     static {
         SKILL_LEVELS.put(Skill.AGILITY, -1);
