@@ -5,9 +5,9 @@ import javax.inject.Inject;
 
 import hootisman.unmutedjingles.jingles.JingleManager;
 import javax.inject.Named;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 
+
+import jaco.mp3.player.MP3Player;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
@@ -192,6 +192,12 @@ public class UnmutedJinglesPlugin extends Plugin
 					//audioPlayer.play(new File("sounds/combat.wav"), (float) 1.0);
 				}catch(Exception ex){}
 
+			case "jacopj":
+				var soundNameMP3 = String.join(" ", e.getArguments());
+				File mp3file = new File("sounds/" + soundNameMP3 + ".mp3");
+				MP3Player player = new MP3Player(mp3file);
+				player.setRepeat(false);
+				player.play();
 
 			default:
 				break;
