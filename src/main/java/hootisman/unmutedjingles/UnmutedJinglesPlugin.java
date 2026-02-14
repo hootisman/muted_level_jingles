@@ -13,7 +13,6 @@ import net.runelite.api.*;
 import net.runelite.api.events.*;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.client.audio.AudioPlayer;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -55,9 +54,6 @@ public class UnmutedJinglesPlugin extends Plugin
 	private JingleManager jingleManager;
 
 	@Inject
-	private AudioPlayer audioPlayer;
-
-	@Inject
 	@Named("developerMode")
 	boolean developerMode;
 
@@ -72,14 +68,13 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	}
 
+
 	@Subscribe
 	public void onConfigChanged(ConfigChanged e){
 		log.debug(getName());
 		if (e.getGroup().equals("unmutedjingles") && e.getKey().equals("jingleTest")){
-			log.debug("jingletest pressed!");
 			try{
-				File file = new File("sounds/woodcutting_unlocks.wav");
-				audioPlayer.play(file, (float) config.jingleGain() - 50);
+				jingleManager.playJingle("woodcutting_unlocks");
 			}catch (Exception ex){
 				log.debug("Failed test audio");
 			}
@@ -94,29 +89,20 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded e){
-		if (client.getMusicVolume() != 0 || jingleManager.isLevelPopupDisabled()) return;
+		if (client.getMusicVolume() != 0 || jingleManager.isLevelUpWidgetDisabled()) return;
 
 		//If a level up display widget shows up, flag that it showed up; jingle queue handled in jinglemanager
 		if (e.getGroupId() == InterfaceID.LEVELUP_DISPLAY){
-			log.debug("*WIDLOD* level up via widget!");
 			jingleManager.widgetLevelUp = true;
 		}
 	}
 
 	@Subscribe
 	public void onChatMessage(ChatMessage e){
-		if(client.getMusicVolume() != 0 || !jingleManager.isLevelPopupDisabled()) return;
+		if(client.getMusicVolume() != 0 || !jingleManager.isLevelUpWidgetDisabled()) return;
 
 		//If a level up chat message shows up, start queueing a jingle
-		Matcher m = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(e.getMessage());
-		jingleManager.queueJingleWithChatMsg(m);
-	}
-
-	@Subscribe
-	public void onVarbitChanged(VarbitChanged e){
-		if (e.getVarbitId() == VarbitID.OPTION_LEVEL_UP_MESSAGE){
-			jingleManager.clearJingleQueue();
-		}
+		jingleManager.queueLevelJingle(e.getMessage());
 	}
 
 	@Provides
@@ -131,38 +117,33 @@ public class UnmutedJinglesPlugin extends Plugin
 	{
 		if (!developerMode) return;
 
+		String task = String.join(" ", e.getArguments());
+		String skill = null;
+		String skill2 = null;
+		int level = 42;
+		int level2 = 42;
+
 		switch(e.getCommand()){
-			case "qmultij":
-				var mtask = String.join(" ", e.getArguments());
-				String ms = StringUtils.capitalize(mtask.split(" ")[0].toLowerCase());
-				String ms2 = StringUtils.capitalize(mtask.split(" ")[2].toLowerCase());
-				int mlevel = 42;
-				int mlevel2 = 42;
+			case "qmlj":
+				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
+				skill2 = StringUtils.capitalize(task.split(" ")[2].toLowerCase());
 				try
 				{
-					mlevel = Integer.parseInt(mtask.split(" ")[1]);
-					mlevel2 = Integer.parseInt(mtask.split(" ")[3]);
+					level = Integer.parseInt(task.split(" ")[1]);
+					level2 = Integer.parseInt(task.split(" ")[3]);
 				}
 				catch (Exception ex)
 				{
 					// ignore
 				}
-				String msgTest0 = "Congratulations, you've just advanced your " + ms + " level. You are now level " + mlevel + ".";
-				String msgTest1 = "Congratulations, you've just advanced your " + ms2 + " level. You are now level " + mlevel2 + ".";
+				String msgTest0 = "Congratulations, you've just advanced your " + skill + " level. You are now level " + level + ".";
+				String msgTest1 = "Congratulations, you've just advanced your " + skill2 + " level. You are now level " + level2 + ".";
 
-
-				Matcher match0 = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(msgTest0);
-				Matcher match1 = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(msgTest1);
-
-				log.debug(match0.matches() ? "first skill matches" : "first skill does not match");
-				log.debug(match1.matches() ? "second skill matches" : "second skill does not match");
-
-				jingleManager.queueJingleWithChatMsg(match0);
-				jingleManager.queueJingleWithChatMsg(match1);
-			case "qlvlj":
-				var task = String.join(" ", e.getArguments());
-				String s = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
-				int level = 42;
+				jingleManager.queueLevelJingle(msgTest0);
+				jingleManager.queueLevelJingle(msgTest1);
+				break;
+			case "qlj":
+				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
 				try
 				{
 					level = Integer.parseInt(task.split(" ")[1]);
@@ -172,35 +153,19 @@ public class UnmutedJinglesPlugin extends Plugin
 					// ignore
 				}
 
-				String msgTest = "Congratulations, you've just advanced your " + s + " level. You are now level " + level + ".";
-				Matcher match = JingleManager.LEVEL_UP_MESSAGE_PATTERN.matcher(msgTest);
+				String msgTest = "Congratulations, you've just advanced your " + skill + " level. You are now level " + level + ".";
 				log.debug(msgTest);
-				log.debug(match.matches() ? "it matches" : "it does not match");
-				jingleManager.queueJingleWithChatMsg(match);
+				jingleManager.queueLevelJingle(msgTest);
 
 				break;
 
 			case "pj":
-				var soundName = String.join(" ", e.getArguments());
-
-				File sound = new File("sounds/" + soundName + ".wav");
-				log.debug("playing jingle");
-				log.debug(sound.getAbsolutePath());
-
-				try{
-					audioPlayer.play(sound, (float) 1.0);
-					//audioPlayer.play(new File("sounds/combat.wav"), (float) 1.0);
-				}catch(Exception ex){}
-
-			case "jacopj":
-				var soundNameMP3 = String.join(" ", e.getArguments());
-				File mp3file = new File("sounds/" + soundNameMP3 + ".mp3");
-				MP3Player player = new MP3Player(mp3file);
-				player.setRepeat(false);
-				player.play();
+				jingleManager.playJingle(task);
+				break;
 
 			default:
 				break;
+
 		}
 	}
 }
