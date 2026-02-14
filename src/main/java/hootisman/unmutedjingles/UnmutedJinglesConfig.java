@@ -18,11 +18,11 @@ public interface UnmutedJinglesConfig extends Config
 		return false;
 	}
 
-	@Range(max=56)
+	@Range(max=100)
 	@ConfigItem(
 			keyName = "jingleGain",
-			name = "Jingle Gain/Volume",
+			name = "Jingle Volume",
 			description = "Volume when jingles are played"
 	)
-	default double jingleGain() {return 47.0;}
+	default int jingleGain() {return 50;}
 }

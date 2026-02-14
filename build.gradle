@@ -17,6 +17,7 @@ def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'hootisman.unmutedjingles.UnmutedJinglesPluginTest'
 
 dependencies {
+    implementation 'net.runelite:jaco-mp3-player:0.10.2-rl1'
     compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
 
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -28,7 +29,7 @@ dependencies {
 }
 
 group = 'hootisman.unmutedjingles'
-version = '0.22'
+version = '0.22.2'
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
