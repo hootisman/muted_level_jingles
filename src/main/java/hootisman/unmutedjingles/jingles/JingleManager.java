@@ -125,8 +125,7 @@ public class JingleManager {
         return url;
     }
     public void playJingle(String fileName){
-        //File mp3file = new File(SOUNDS_PATH + fileName + ".mp3");
-        URL url = loadAndCache("/" + fileName + ".mp3");
+        URL url = loadAndCache("/jinglesounds/" + fileName + ".mp3");
         if (url == null){
             log.debug("Failed to play jingle " + fileName);
             return;
