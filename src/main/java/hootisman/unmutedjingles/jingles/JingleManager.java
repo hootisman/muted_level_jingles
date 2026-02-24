@@ -11,12 +11,16 @@ import net.runelite.api.Skill;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +47,7 @@ public class JingleManager {
 
     //chat level up message
     public static final Pattern LEVEL_UP_MESSAGE_PATTERN = Pattern.compile("Congratulations, you've (just advanced your (?<skill>[a-zA-Z]+) level\\. You are now level (?<level>\\d+)|reached the highest possible (?<skill99>[a-zA-Z]+) level of 99)\\.");
-    public static final String SOUNDS_PATH = "sounds/";
+    public static final Map<String, URL> SOUNDS_CACHE = new HashMap<>();
 
     //true when a level up widget shows up, otherwise false
     public boolean widgetLevelUp;
@@ -106,11 +110,29 @@ public class JingleManager {
             log.debug("Failed to play level jingle");
         }
     }
+    public URL loadAndCache(String fileName){
+        URL url = SOUNDS_CACHE.get(fileName);
+        if (url == null){
+            try {
+                url = getClass().getResource(fileName);
+                SOUNDS_CACHE.put(fileName, url);
+            }catch (Exception ex){
+                log.debug("Failed to find sound " + fileName);
+                url = null;
+            }
+        }
 
+        return url;
+    }
     public void playJingle(String fileName){
-        File mp3file = new File(SOUNDS_PATH + fileName + ".mp3");
+        //File mp3file = new File(SOUNDS_PATH + fileName + ".mp3");
+        URL url = loadAndCache("/" + fileName + ".mp3");
+        if (url == null){
+            log.debug("Failed to play jingle " + fileName);
+            return;
+        }
         if (player != null) player.stop();
-        player = new MP3Player(mp3file);
+        player = new MP3Player(url);
         player.setRepeat(false);
         player.setVolume(config.jingleGain());
         player.play();
