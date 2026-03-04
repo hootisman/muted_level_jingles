@@ -153,7 +153,9 @@ public class UnmutedJinglesPlugin extends Plugin
 					// ignore
 				}
 
-				String msgTest = "Congratulations, you've just advanced your " + skill + " level. You are now level " + level + ".";
+				String msgTest = jingleManager.isLevelUpWidgetDisabled() ?
+						"Congratulations, you've just advanced your " + skill + " level. You are now level " + level + "." :
+						"Your "+ skill +" level is now " + level + ".";
 				log.debug(msgTest);
 				jingleManager.queueLevelJingle(msgTest);
 

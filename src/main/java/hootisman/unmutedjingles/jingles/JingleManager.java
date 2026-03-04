@@ -81,7 +81,7 @@ public class JingleManager {
 
     //true if levelup widget is disabled, otherwise false
     public boolean isLevelUpWidgetDisabled(){
-        return client.getVarbitValue(VarbitID.OPTION_LEVEL_UP_MESSAGE) == 1;
+        return client.getVarbitValue(VarbitID.OPTION_LEVEL_UP_MESSAGE_DISABLED) == 1;
     }
 
     //takes a chat/widget text, parses with regex, then tries to play a jingle
