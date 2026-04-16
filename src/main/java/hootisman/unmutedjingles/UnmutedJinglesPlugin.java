@@ -3,6 +3,7 @@ package hootisman.unmutedjingles;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 
+import hootisman.unmutedjingles.jingles.JingleData;
 import hootisman.unmutedjingles.jingles.JingleManager;
 import javax.inject.Named;
 
@@ -10,11 +11,14 @@ import javax.inject.Named;
 import jaco.mp3.player.MP3Player;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.annotations.Varbit;
 import net.runelite.api.events.*;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.PluginChanged;
@@ -39,6 +43,9 @@ public class UnmutedJinglesPlugin extends Plugin
 	private Client client;
 
 	@Inject
+	private EventBus eventBus;
+
+	@Inject
 	private ClientThread clientThread;
 
 	@Inject
@@ -57,10 +64,21 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Named("developerMode")
 	boolean developerMode;
 
+	//my workaround for not playing varbit-based jingles once logged in
+	private int currentTime;
+
 	@Override
 	protected void startUp() throws Exception
 	{
+		currentTime = -1;
+	}
 
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged e){
+		if (e.getGameState() == GameState.LOGGED_IN){
+			//start timer
+			currentTime = 0;
+		}
 	}
 
 	@Subscribe
@@ -68,6 +86,25 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	}
 
+
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged e){
+		if (client.getMusicVolume() != 0 || isTimerTicking()) return;
+
+		//TODO: move to jinglemanager
+		String fileName = null;
+		if (e.getVarbitId() == VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED){
+			fileName = "task_leagues";
+		}
+		if (JingleData.LEAGUES_RELIC_VARBITS.contains(e.getVarbitId())){
+			fileName = "relic_leagues";
+		}
+
+		if(fileName != null){
+			jingleManager.playJingle(fileName);
+		}
+
+	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged e){
@@ -84,6 +121,13 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick e){
+		if (isTimerTicking()){
+			currentTime++;
+			if (currentTime >= 3){
+				currentTime = -1;
+				log.debug("Timer disabled");
+			}
+		}
 		jingleManager.tickJingle();
 	}
 
@@ -111,20 +155,23 @@ public class UnmutedJinglesPlugin extends Plugin
 		return configManager.getConfig(UnmutedJinglesConfig.class);
 	}
 
+	boolean isTimerTicking(){
+		return currentTime != -1;
+	}
+
 	//debugging commands
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
 	{
-		if (!developerMode) return;
+		//if (!developerMode) return;
 
 		String task = String.join(" ", e.getArguments());
 		String skill = null;
 		String skill2 = null;
 		int level = 42;
 		int level2 = 42;
-
 		switch(e.getCommand()){
-			case "qmlj":
+			case "uj-multi-level":
 				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
 				skill2 = StringUtils.capitalize(task.split(" ")[2].toLowerCase());
 				try
@@ -142,7 +189,7 @@ public class UnmutedJinglesPlugin extends Plugin
 				jingleManager.queueLevelJingle(msgTest0);
 				jingleManager.queueLevelJingle(msgTest1);
 				break;
-			case "qlj":
+			case "uj-level":
 				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
 				try
 				{
@@ -160,8 +207,20 @@ public class UnmutedJinglesPlugin extends Plugin
 				jingleManager.queueLevelJingle(msgTest);
 
 				break;
+			case "uj-taskl":
+				VarbitChanged fake = new VarbitChanged();
+				fake.setVarbitId(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED);
+				fake.setValue(2);
+				eventBus.post(fake);
+				break;
+			case "uj-relicl":
+				VarbitChanged fake2 = new VarbitChanged();
+				fake2.setVarbitId(VarbitID.LEAGUE_RELIC_SELECTION_0);
+				fake2.setValue(2);
+				eventBus.post(fake2);
+				break;
 
-			case "pj":
+			case "uj-play":
 				jingleManager.playJingle(task);
 				break;
 

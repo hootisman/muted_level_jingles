@@ -1,19 +1,30 @@
 package hootisman.unmutedjingles.jingles;
 
+import hootisman.unmutedjingles.UnmutedJinglesConfig;
 import net.runelite.api.Skill;
+import net.runelite.api.gameval.VarbitID;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class JingleData {
-    // ***** Constants *****
+    @Inject
+    private UnmutedJinglesConfig config;
 
+
+    // ***** Constants *****
+    public static final Set<Integer> LEAGUES_RELIC_VARBITS =
+            Stream.of(VarbitID.LEAGUE_RELIC_SELECTION_0, VarbitID.LEAGUE_RELIC_SELECTION_1,VarbitID.LEAGUE_RELIC_SELECTION_2,
+                    VarbitID.LEAGUE_RELIC_SELECTION_3,VarbitID.LEAGUE_RELIC_SELECTION_4,VarbitID.LEAGUE_RELIC_SELECTION_5,
+                    VarbitID.LEAGUE_RELIC_SELECTION_6, VarbitID.LEAGUE_RELIC_SELECTION_7).collect(Collectors.toUnmodifiableSet());
     static final Set<Integer> ATTACK_UNLOCKS =
             Stream.of(5, 10, 15, 20, 30, 40, 42, 50, 55,
                     60, 65, 70, 75, 77, 78, 80, 82, 99).collect(Collectors.toUnmodifiableSet());
