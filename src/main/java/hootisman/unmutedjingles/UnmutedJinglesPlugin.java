@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 
 import hootisman.unmutedjingles.jingles.JingleData;
+import hootisman.unmutedjingles.jingles.JingleInfo;
 import hootisman.unmutedjingles.jingles.JingleManager;
 import javax.inject.Named;
 
@@ -101,7 +102,7 @@ public class UnmutedJinglesPlugin extends Plugin
 		}
 
 		if(fileName != null){
-			jingleManager.playJingle(fileName);
+			jingleManager.playJingle(JingleInfo.of(fileName, JingleInfo.Type.LEAGUES));
 		}
 
 	}
@@ -111,7 +112,7 @@ public class UnmutedJinglesPlugin extends Plugin
 		log.debug(getName());
 		if (e.getGroup().equals("unmutedjingles") && e.getKey().equals("jingleTest")){
 			try{
-				jingleManager.playJingle("woodcutting_unlocks");
+				jingleManager.playJingle(JingleInfo.of("woodcutting_unlocks", JingleInfo.Type.LEVEL));
 			}catch (Exception ex){
 				log.debug("Failed test audio");
 			}
@@ -170,63 +171,73 @@ public class UnmutedJinglesPlugin extends Plugin
 		String skill2 = null;
 		int level = 42;
 		int level2 = 42;
-		switch(e.getCommand()){
-			case "uj-multi-level":
-				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
-				skill2 = StringUtils.capitalize(task.split(" ")[2].toLowerCase());
-				try
-				{
-					level = Integer.parseInt(task.split(" ")[1]);
-					level2 = Integer.parseInt(task.split(" ")[3]);
-				}
-				catch (Exception ex)
-				{
-					// ignore
-				}
-				String msgTest0 = "Congratulations, you've just advanced your " + skill + " level. You are now level " + level + ".";
-				String msgTest1 = "Congratulations, you've just advanced your " + skill2 + " level. You are now level " + level2 + ".";
+		String command = e.getCommand();
 
-				jingleManager.queueLevelJingle(msgTest0);
-				jingleManager.queueLevelJingle(msgTest1);
-				break;
-			case "uj-level":
-				skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
-				try
-				{
-					level = Integer.parseInt(task.split(" ")[1]);
-				}
-				catch (Exception ex)
-				{
-					// ignore
-				}
+		if (command.equals("uj-multi-level")){
+			skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
+			skill2 = StringUtils.capitalize(task.split(" ")[2].toLowerCase());
+			try
+			{
+				level = Integer.parseInt(task.split(" ")[1]);
+				level2 = Integer.parseInt(task.split(" ")[3]);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
+			String msgTest0 = "Congratulations, you've just advanced your " + skill + " level. You are now level " + level + ".";
+			String msgTest1 = "Congratulations, you've just advanced your " + skill2 + " level. You are now level " + level2 + ".";
 
-				String msgTest = jingleManager.isLevelUpWidgetDisabled() ?
-						"Congratulations, you've just advanced your " + skill + " level. You are now level " + level + "." :
-						"Your "+ skill +" level is now " + level + ".";
-				log.debug(msgTest);
-				jingleManager.queueLevelJingle(msgTest);
+			jingleManager.queueLevelJingle(msgTest0);
+			jingleManager.queueLevelJingle(msgTest1);
+		}else if (command.equals("uj-level")){
+			skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
+			try
+			{
+				level = Integer.parseInt(task.split(" ")[1]);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
 
-				break;
-			case "uj-taskl":
-				VarbitChanged fake = new VarbitChanged();
-				fake.setVarbitId(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED);
-				fake.setValue(2);
-				eventBus.post(fake);
-				break;
-			case "uj-relicl":
-				VarbitChanged fake2 = new VarbitChanged();
-				fake2.setVarbitId(VarbitID.LEAGUE_RELIC_SELECTION_0);
-				fake2.setValue(2);
-				eventBus.post(fake2);
-				break;
+			String msgTest = jingleManager.isLevelUpWidgetDisabled() ?
+					"Congratulations, you've just advanced your " + skill + " level. You are now level " + level + "." :
+					"Your "+ skill +" level is now " + level + ".";
+			log.debug(msgTest);
+			jingleManager.queueLevelJingle(msgTest);
+		}else if (command.equals("uj-taskl")){
+			VarbitChanged fake = new VarbitChanged();
+			fake.setVarbitId(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED);
+			fake.setValue(2);
+			eventBus.post(fake);
+		}else if (command.equals("uj-relicl")){
+			VarbitChanged fake = new VarbitChanged();
+			fake.setVarbitId(VarbitID.LEAGUE_RELIC_SELECTION_0);
+			fake.setValue(2);
+			eventBus.post(fake);
+		}else if (command.equals("uj-priority")){
+			VarbitChanged fake = new VarbitChanged();
+			fake.setVarbitId(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED);
+			fake.setValue(2);
+			eventBus.post(fake);
 
-			case "uj-play":
-				jingleManager.playJingle(task);
-				break;
+			skill = StringUtils.capitalize(task.split(" ")[0].toLowerCase());
+			try
+			{
+				level = Integer.parseInt(task.split(" ")[1]);
+			}
+			catch (Exception ex)
+			{
+				// ignore
+			}
 
-			default:
-				break;
-
+			String msgTest = jingleManager.isLevelUpWidgetDisabled() ?
+					"Congratulations, you've just advanced your " + skill + " level. You are now level " + level + "." :
+					"Your "+ skill +" level is now " + level + ".";
+			log.debug(msgTest);
+			jingleManager.queueLevelJingle(msgTest);
 		}
+
 	}
 }

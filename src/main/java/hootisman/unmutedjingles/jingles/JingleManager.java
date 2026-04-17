@@ -52,7 +52,9 @@ public class JingleManager {
     //true when a level up widget shows up, otherwise false
     public boolean widgetLevelUp;
 
-    private MP3Player player;
+    public MP3Player player;
+
+    public JingleInfo currentSongInfo;
 
     public JingleManager(){
         widgetLevelUp = false;
@@ -105,7 +107,7 @@ public class JingleManager {
                 fileName = skill.toLowerCase() + (JingleData.UNLOCK_LEVELS.get(s).contains(l) ? "_unlocks" : "");
                 log.debug("file name " + fileName);
             }
-            playJingle(fileName);
+            playJingle(JingleInfo.of(fileName, JingleInfo.Type.LEVEL));
         }catch (Exception ex){
             log.debug("Failed to play level jingle");
         }
@@ -124,16 +126,27 @@ public class JingleManager {
 
         return url;
     }
-    public void playJingle(String fileName){
-        URL url = loadAndCache("/jinglesounds/" + fileName + ".mp3");
+    //1 no jingles playing=> create new
+    //2 jingle playing, new jingle has priority => stop and create new
+    //2 jingle playing, new jingle does not have priority => return
+    public void playJingle(JingleInfo info){
+        URL url = loadAndCache("/jinglesounds/" + info.type.folderName + "/" + info.fileName + ".mp3");
         if (url == null){
-            log.debug("Failed to play jingle " + fileName);
+            log.debug("Failed to play jingle " + info.fileName);
             return;
         }
-        if (player != null) player.stop();
+        if (player != null){
+            if (currentSongInfo != null && player.isPlaying() && currentSongInfo.getPriority(config) < info.getPriority(config)) return;
+
+            player.stop();
+        }
+
         player = new MP3Player(url);
         player.setRepeat(false);
         player.setVolume(config.jingleGain());
         player.play();
+        currentSongInfo = info;
     }
 }
+
+
