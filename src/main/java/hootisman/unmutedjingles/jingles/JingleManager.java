@@ -78,7 +78,6 @@ public class JingleManager {
             queueLevelJingle(levelUpWidget.getText());
         }
         widgetLevelUp = false;
-
     }
 
     //true if levelup widget is disabled, otherwise false

@@ -21,10 +21,6 @@ public class JingleData {
 
 
     // ***** Constants *****
-    public static final Set<Integer> LEAGUES_RELIC_VARBITS =
-            Stream.of(VarbitID.LEAGUE_RELIC_SELECTION_0, VarbitID.LEAGUE_RELIC_SELECTION_1,VarbitID.LEAGUE_RELIC_SELECTION_2,
-                    VarbitID.LEAGUE_RELIC_SELECTION_3,VarbitID.LEAGUE_RELIC_SELECTION_4,VarbitID.LEAGUE_RELIC_SELECTION_5,
-                    VarbitID.LEAGUE_RELIC_SELECTION_6, VarbitID.LEAGUE_RELIC_SELECTION_7).collect(Collectors.toUnmodifiableSet());
     static final Set<Integer> ATTACK_UNLOCKS =
             Stream.of(5, 10, 15, 20, 30, 40, 42, 50, 55,
                     60, 65, 70, 75, 77, 78, 80, 82, 99).collect(Collectors.toUnmodifiableSet());
@@ -158,6 +154,19 @@ public class JingleData {
             Map.entry(Skill.THIEVING, THIEVING_UNLOCKS),
             Map.entry(Skill.WOODCUTTING, WOODCUTTING_UNLOCKS),
             Map.entry(Skill.SAILING, SAILING_UNLOCKS)
+    );
+
+    //TODO: map<varbitID,jingleInfo>
+    public final static Map<Integer, JingleInfo> VARBIT_JINGLE_INFOS = Map.ofEntries(
+            Map.entry(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED, JingleInfo.of("task_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_0, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_1, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_2, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_3, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_4, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_5, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_6, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_7, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES))
     );
 
 }

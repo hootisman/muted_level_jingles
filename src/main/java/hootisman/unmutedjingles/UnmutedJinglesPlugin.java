@@ -92,19 +92,9 @@ public class UnmutedJinglesPlugin extends Plugin
 	public void onVarbitChanged(VarbitChanged e){
 		if (client.getMusicVolume() != 0 || isTimerTicking()) return;
 
-		//TODO: move to jinglemanager
-		String fileName = null;
-		if (e.getVarbitId() == VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED){
-			fileName = "task_leagues";
+		if (JingleData.VARBIT_JINGLE_INFOS.containsKey(e.getVarbitId())){
+			jingleManager.playJingle(JingleData.VARBIT_JINGLE_INFOS.get(e.getVarbitId()));
 		}
-		if (JingleData.LEAGUES_RELIC_VARBITS.contains(e.getVarbitId())){
-			fileName = "relic_leagues";
-		}
-
-		if(fileName != null){
-			jingleManager.playJingle(JingleInfo.of(fileName, JingleInfo.Type.LEAGUES));
-		}
-
 	}
 
 	@Subscribe
