@@ -164,7 +164,7 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
 	{
-		//if (!developerMode) return;
+		if (!developerMode) return;
 
 		String task = String.join(" ", e.getArguments());
 		String skill = null;
