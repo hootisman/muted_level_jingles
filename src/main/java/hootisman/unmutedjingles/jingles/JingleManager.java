@@ -111,6 +111,8 @@ public class JingleManager {
             log.debug("Failed to play level jingle");
         }
     }
+
+    //loads and caches actual URL/mp3 clip
     public URL loadAndCache(String fileName){
         URL url = SOUNDS_CACHE.get(fileName);
         if (url == null){
@@ -129,6 +131,8 @@ public class JingleManager {
     //2 jingle playing, new jingle has priority => stop and create new
     //2 jingle playing, new jingle does not have priority => return
     public void playJingle(JingleInfo info){
+        if (!info.isEnabled(config)) return;
+
         URL url = loadAndCache("/jinglesounds/" + info.type.folderName + "/" + info.fileName + ".mp3");
         if (url == null){
             log.debug("Failed to play jingle " + info.fileName);

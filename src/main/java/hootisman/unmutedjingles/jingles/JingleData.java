@@ -166,7 +166,13 @@ public class JingleData {
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_4, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_5, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_6, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
-            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_7, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES))
+            Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_7, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_EASY, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_MEDIUM, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_HARD, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_ELITE, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_MASTER, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
+            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_GRANDMASTER, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER))
     );
 
 }

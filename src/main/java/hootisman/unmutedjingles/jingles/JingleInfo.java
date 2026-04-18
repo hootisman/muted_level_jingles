@@ -14,7 +14,8 @@ public class JingleInfo{
 
     public enum Type{
         LEVEL("level"),
-        LEAGUES("leagues");
+        LEAGUES("leagues"),
+        OTHER("other");
 
         public final String folderName;
         private Type(String folderName){
@@ -44,9 +45,30 @@ public class JingleInfo{
             case LEAGUES:
                 priority = config.leaguesPriority();
                 break;
+            case OTHER:
+                priority = config.otherPriority();
+                break;
             default:
                 break;
         }
         return priority;
+    }
+
+    public boolean isEnabled(UnmutedJinglesConfig config){
+        boolean isEnabled = true;
+        switch (type){
+            case LEVEL:
+                isEnabled = config.levelEnabled();
+                break;
+            case LEAGUES:
+                isEnabled = config.leaguesEnabled();
+                break;
+            case OTHER:
+                isEnabled = config.otherEnabled();
+                break;
+            default:
+                break;
+        }
+        return isEnabled;
     }
 }

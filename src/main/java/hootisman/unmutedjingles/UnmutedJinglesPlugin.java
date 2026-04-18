@@ -91,7 +91,6 @@ public class UnmutedJinglesPlugin extends Plugin
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged e){
 		if (client.getMusicVolume() != 0 || isTimerTicking()) return;
-
 		if (JingleData.VARBIT_JINGLE_INFOS.containsKey(e.getVarbitId())){
 			jingleManager.playJingle(JingleData.VARBIT_JINGLE_INFOS.get(e.getVarbitId()));
 		}
@@ -106,7 +105,6 @@ public class UnmutedJinglesPlugin extends Plugin
 			}catch (Exception ex){
 				log.debug("Failed test audio");
 			}
-
 		}
 	}
 
@@ -227,6 +225,11 @@ public class UnmutedJinglesPlugin extends Plugin
 					"Your "+ skill +" level is now " + level + ".";
 			log.debug(msgTest);
 			jingleManager.queueLevelJingle(msgTest);
+		}else if (command.equals("uj-combata")){
+			VarbitChanged fake = new VarbitChanged();
+			fake.setVarbitId(VarbitID.CA_TOTAL_TASKS_COMPLETED_EASY);
+			fake.setValue(2);
+			eventBus.post(fake);
 		}
 
 	}
