@@ -8,7 +8,8 @@
 - [ ] POH Jingles
 - [ ] Achievement Diary Jingles
 - [ ] Quest Jingles
-- [ ] Other Jingles
+- [X] Combat Achievement
+- [X] Leagues Tasks/Relics
 
 Please send an [issue](https://github.com/hootisman/muted_level_jingles/issues) if you'd like a specific jingle implemented!
 
