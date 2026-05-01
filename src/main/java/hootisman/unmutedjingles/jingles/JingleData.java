@@ -5,12 +5,7 @@ import net.runelite.api.Skill;
 import net.runelite.api.gameval.VarbitID;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -156,7 +151,6 @@ public class JingleData {
             Map.entry(Skill.SAILING, SAILING_UNLOCKS)
     );
 
-    //TODO: map<varbitID,jingleInfo>
     public final static Map<Integer, JingleInfo> VARBIT_JINGLE_INFOS = Map.ofEntries(
             Map.entry(VarbitID.LEAGUE_TOTAL_TASKS_COMPLETED, JingleInfo.of("task_leagues", JingleInfo.Type.LEAGUES)),
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_0, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
@@ -167,12 +161,13 @@ public class JingleData {
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_5, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_6, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
             Map.entry(VarbitID.LEAGUE_RELIC_SELECTION_7, JingleInfo.of("relic_leagues", JingleInfo.Type.LEAGUES)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_EASY, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_MEDIUM, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_HARD, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_ELITE, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_MASTER, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER)),
-            Map.entry(VarbitID.CA_TOTAL_TASKS_COMPLETED_GRANDMASTER, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER))
+            Map.entry(VarbitID.CA_TASK_POPUP, JingleInfo.of("combat_achievement", JingleInfo.Type.OTHER))
+    );
+
+    //when the varbit value changes to one of the integers in the list, a jingle will play
+    //varbits NOT defined in this will always play jingle if its varbit is changed
+    public final static Map<Integer, List<Integer>> VARBIT_VALUES_NEEDED_TO_PLAY = Map.ofEntries(
+            Map.entry(VarbitID.CA_TASK_POPUP, List.of(1))
     );
 
 }

@@ -9,13 +9,10 @@ import hootisman.unmutedjingles.jingles.JingleManager;
 import javax.inject.Named;
 
 
-import jaco.mp3.player.MP3Player;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
-import net.runelite.api.annotations.Varbit;
 import net.runelite.api.events.*;
 import net.runelite.api.gameval.InterfaceID;
-import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -29,9 +26,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.plugins.music.MusicPlugin;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.util.regex.Matcher;
 
 @Slf4j
 @PluginDescriptor(
@@ -84,14 +78,15 @@ public class UnmutedJinglesPlugin extends Plugin
 
 	@Subscribe
 	public void onPluginChanged(PluginChanged e){
-
 	}
 
 
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged e){
 		if (client.getMusicVolume() != 0 || isTimerTicking()) return;
-		if (JingleData.VARBIT_JINGLE_INFOS.containsKey(e.getVarbitId())){
+		if (JingleData.VARBIT_JINGLE_INFOS.containsKey(e.getVarbitId())
+				&& (!JingleData.VARBIT_VALUES_NEEDED_TO_PLAY.containsKey(e.getVarbitId()) || JingleData.VARBIT_VALUES_NEEDED_TO_PLAY.get(e.getVarbitId()).contains(e.getValue()))
+		){
 			jingleManager.playJingle(JingleData.VARBIT_JINGLE_INFOS.get(e.getVarbitId()));
 		}
 	}
@@ -227,7 +222,7 @@ public class UnmutedJinglesPlugin extends Plugin
 			jingleManager.queueLevelJingle(msgTest);
 		}else if (command.equals("uj-combata")){
 			VarbitChanged fake = new VarbitChanged();
-			fake.setVarbitId(VarbitID.CA_TOTAL_TASKS_COMPLETED_EASY);
+			fake.setVarbitId(VarbitID.CA_TASK_POPUP);
 			fake.setValue(2);
 			eventBus.post(fake);
 		}
