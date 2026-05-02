@@ -100,6 +100,12 @@ public class UnmutedJinglesPlugin extends Plugin
 			}catch (Exception ex){
 				log.debug("Failed test audio");
 			}
+		} else if (e.getGroup().equals("unmutedjingles") && e.getKey().equals("sailingJingleTest")){
+			try{
+				jingleManager.playJingle(JingleInfo.of(config.altSailingJingle() ? "sailing_alt" : "sailing", JingleInfo.Type.LEVEL));
+			}catch (Exception ex){
+				log.debug("Failed test audio");
+			}
 		}
 	}
 

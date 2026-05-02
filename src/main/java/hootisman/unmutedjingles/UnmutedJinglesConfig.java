@@ -9,32 +9,46 @@ public interface UnmutedJinglesConfig extends Config
 	@ConfigSection(
 			name = "Enable/Disable",
 			description = "Enable or disable certain jingles",
-			position = 1
+			closedByDefault = true,
+			position = 10
 	)
 	String enableSection = "Enable/Disable";
 
 	@ConfigSection(
 			name = "Priority",
 			description = "Priority over which jingle plays when 2 or more overlap. Lower = higher priority",
-			position = 2
+			closedByDefault = true,
+			position = 11
 	)
 	String prioritySection = "Priority";
 
 	@ConfigSection(
 			name = "Debug",
 			description = "Debugging tools",
-			position = 3
+			closedByDefault = true,
+			position = 12
 	)
 	String debugSection = "Debug";
-
 
 	@Range(max=100)
 	@ConfigItem(
 			keyName = "jingleGain",
 			name = "Jingle Volume",
-			description = "Volume when jingles are played"
+			description = "Volume when jingles are played",
+			position = 1
 	)
 	default int jingleGain() {return 50;}
+
+	@ConfigItem(
+			keyName = "altSailingJingle",
+			name = "Alternate Sailing Level Up Jingle",
+			description = "If enabled, will play alternate sailing level up jingle",
+			position = 2
+	)
+	default boolean altSailingJingle()
+	{
+		return false;
+	}
 
 	@ConfigItem(
 			keyName = "levelEnabled",
@@ -53,17 +67,17 @@ public interface UnmutedJinglesConfig extends Config
 	default boolean leaguesEnabled() {return true;}
 
 	@ConfigItem(
-			keyName = "otherEnabled",
-			name = "Other Jingles",
-			description = "Enable Other jingles (combat achievement)",
+			keyName = "combatEnabled",
+			name = "Combat Task Jingle",
+			description = "Enable combat achievement jingle",
 			section = enableSection
 	)
-	default boolean otherEnabled() {return true;}
+	default boolean combatEnabled() {return true;}
 
 	@Range(max=100)
 	@ConfigItem(
 			keyName = "levelPriority",
-			name = "Level Up Priority",
+			name = "Level Up",
 			description = "Priority for level up jingle",
 			section = prioritySection
 	)
@@ -72,7 +86,7 @@ public interface UnmutedJinglesConfig extends Config
 	@Range(max=100)
 	@ConfigItem(
 			keyName = "leaguesPriority",
-			name = "Leagues Priority",
+			name = "Leagues",
 			description = "Priority for all leagues jingles",
 			section = prioritySection
 	)
@@ -80,12 +94,12 @@ public interface UnmutedJinglesConfig extends Config
 
 	@Range(max=100)
 	@ConfigItem(
-			keyName = "otherPriority",
-			name = "Other Priority",
-			description = "Priority for other jingles (combat achievement)",
+			keyName = "combatPriority",
+			name = "Combat Tasks",
+			description = "Priority for combat achievement jingle",
 			section = prioritySection
 	)
-	default int otherPriority() {return 3;}
+	default int combatPriority() {return 3;}
 
 
 	@ConfigItem(
@@ -95,6 +109,17 @@ public interface UnmutedJinglesConfig extends Config
 			section = debugSection
 	)
 	default boolean jingleTest()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "sailingJingleTest",
+			name = "Sailing Jingle Test",
+			description = "When pressed, will play a sailing level up jingle; Used to test volume",
+			section = debugSection
+	)
+	default boolean sailingJingleTest()
 	{
 		return false;
 	}

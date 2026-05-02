@@ -1,13 +1,9 @@
 package hootisman.unmutedjingles.jingles;
 
 import hootisman.unmutedjingles.UnmutedJinglesConfig;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import net.runelite.api.gameval.SpriteID;
-
-import javax.inject.Inject;
 
 @RequiredArgsConstructor(staticName = "of")
 public class JingleInfo{
@@ -46,7 +42,7 @@ public class JingleInfo{
                 priority = config.leaguesPriority();
                 break;
             case OTHER:
-                priority = config.otherPriority();
+                priority = config.combatPriority();
                 break;
             default:
                 break;
@@ -64,7 +60,7 @@ public class JingleInfo{
                 isEnabled = config.leaguesEnabled();
                 break;
             case OTHER:
-                isEnabled = config.otherEnabled();
+                isEnabled = config.combatEnabled();
                 break;
             default:
                 break;

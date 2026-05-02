@@ -102,8 +102,10 @@ public class JingleManager {
             }else {
                 Skill s = Skill.valueOf(skill);
                 int l = Integer.parseInt(level);
+                String filler = "";
+                if (s == Skill.SAILING && config.altSailingJingle()) filler += "_alt";
                 log.debug("Skill level parse successful");
-                fileName = skill.toLowerCase() + (JingleData.UNLOCK_LEVELS.get(s).contains(l) ? "_unlocks" : "");
+                fileName = skill.toLowerCase() + filler + (JingleData.UNLOCK_LEVELS.get(s).contains(l) ? "_unlocks" : "");
                 log.debug("file name " + fileName);
             }
             playJingle(JingleInfo.of(fileName, JingleInfo.Type.LEVEL));
